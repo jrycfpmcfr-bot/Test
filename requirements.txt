@@ -1,0 +1,7 @@
+pdfplumber>=0.10      # lecture des PDF (inclut pypdfium2 pour le rendu)
+lxml>=4.9             # lecture DEXPI XML
+numpy>=1.24           # comparaison visuelle
+pillow>=10            # images
+ezdxf>=1.1            # optionnel : fichiers DXF
+# pytesseract>=0.3    # optionnel : OCR des P&ID scannés (nécessite Tesseract installé)
+# reportlab>=4        # optionnel : uniquement pour régénérer les exemples PDF
