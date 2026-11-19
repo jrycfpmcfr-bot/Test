@@ -113,4 +113,6 @@ ELEVENLABS_VOICE_ID=...
 
 `jarvis_claude_ai.html` est la même interface, publiée comme page sur claude.ai : elle lit votre
 boîte via le connecteur Gmail de claude.ai, utilise Claude pour les résumés et le tri, la voix et
-la dictée de claude.ai. Aucune clé ni serveur à installer. Google Agenda n'y est pas encore relié.
+la dictée de claude.ai, et lit et complète votre Google Agenda via son connecteur. Aucune clé ni
+serveur à installer. La voix par défaut est la meilleure voix masculine française gratuite de
+l'appareil (idéalement « Henri » dans Microsoft Edge), réglée plus grave et posée.
