@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Assistant HUD</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="grille" aria-hidden="true"></div>
+
+  <header class="barre">
+    <div class="logo"><span id="nom">JARVIS</span><small>assistant personnel</small></div>
+    <div class="voyants">
+      <span class="voyant" id="v-mail">MAIL</span>
+      <span class="voyant" id="v-agenda">AGENDA</span>
+      <span class="voyant" id="v-ia">IA</span>
+      <span class="voyant" id="v-micro">MICRO</span>
+    </div>
+    <div class="horloge"><span id="heure">--:--</span><small id="date"></small></div>
+    <button class="icone" id="btn-reglages" title="Réglages de la voix" aria-label="Réglages">⚙</button>
+  </header>
+
+  <main class="hud">
+    <section class="panneau" id="panneau-mails">
+      <div class="titre-panneau">
+        <h2>Courrier</h2>
+        <span class="compteur" id="nb-mails">0</span>
+        <button class="petit" id="btn-mails">Analyser</button>
+      </div>
+      <ul class="liste" id="liste-mails"><li class="vide">Dites « résume mes mails »</li></ul>
+      <div class="actions-tri" id="actions-tri" hidden>
+        <label><input type="checkbox" id="tri-lu"> marquer comme lus</label>
+        <button class="principal" id="btn-trier">Appliquer le tri</button>
+      </div>
+    </section>
+
+    <section class="centre">
+      <div class="noyau" id="noyau" role="button" tabindex="0" aria-label="Parler à l'assistant">
+        <svg viewBox="0 0 400 400" aria-hidden="true">
+          <defs>
+            <radialGradient id="lueur" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="var(--cyan-vif)" stop-opacity=".95"/>
+              <stop offset="45%" stop-color="var(--cyan)" stop-opacity=".35"/>
+              <stop offset="100%" stop-color="var(--cyan)" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <circle class="anneau a1" cx="200" cy="200" r="185" />
+          <circle class="anneau a2" cx="200" cy="200" r="165" />
+          <circle class="anneau a3" cx="200" cy="200" r="140" />
+          <circle class="anneau a4" cx="200" cy="200" r="112" />
+          <g id="barres"></g>
+          <circle id="coeur" cx="200" cy="200" r="70" fill="url(#lueur)" />
+          <circle class="anneau a5" cx="200" cy="200" r="48" />
+        </svg>
+        <div class="etat" id="etat">EN VEILLE</div>
+      </div>
+      <p class="sous-titre" id="sous-titre" aria-live="polite"></p>
+      <p class="entendu" id="entendu"></p>
+        <div class="confirmation" id="confirmation" hidden>
+          <p id="texte-confirmation"></p>
+          <div><button class="principal" id="btn-oui">Confirmer</button><button id="btn-non">Annuler</button></div>
+        </div>
+
+      <div class="commandes">
+        <button class="puce" data-cmd="résume mes mails">Mes mails</button>
+        <button class="puce" data-cmd="mon agenda">Mon agenda</button>
+        <button class="puce" data-cmd="trie mes mails">Trier</button>
+        <button class="puce" data-cmd="briefing">Briefing complet</button>
+      </div>
+
+      <form class="saisie" id="saisie">
+        <button type="button" class="micro" id="btn-micro" title="Parler (ou maintenez Espace)" aria-label="Parler">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-2.08A7 7 0 0 0 19 12h-2Z"/></svg>
+        </button>
+        <input id="question" autocomplete="off" placeholder="Parlez, ou écrivez une demande…">
+        <button type="submit" class="principal">Envoyer</button>
+      </form>
+    </section>
+
+    <section class="panneau" id="panneau-agenda">
+      <div class="titre-panneau">
+        <h2>Agenda</h2>
+        <span class="compteur" id="nb-evenements">0</span>
+        <button class="petit" id="btn-agenda">Actualiser</button>
+      </div>
+      <ul class="liste" id="liste-agenda"><li class="vide">Dites « mon agenda »</li></ul>
+    </section>
+  </main>
+
+
+  <aside class="reglages" id="reglages" hidden>
+    <h2>Réglages</h2>
+    <label>Voix
+      <select id="r-voix"></select>
+    </label>
+    <label>Grave ↔ aigu <input type="range" id="r-hauteur" min="0.5" max="1.5" step="0.05"></label>
+    <label>Débit <input type="range" id="r-debit" min="0.7" max="1.4" step="0.05"></label>
+    <label class="case"><input type="checkbox" id="r-premium"> Voix premium ElevenLabs (si configurée)</label>
+    <label class="case"><input type="checkbox" id="r-ecoute"> Écoute permanente : répondre quand j'entends mon nom</label>
+    <button id="r-test">Tester la voix</button>
+    <button class="principal" id="r-fermer">Fermer</button>
+    <p class="note" id="r-note"></p>
+  </aside>
+
+  <div class="bandeau" id="bandeau" hidden></div>
+  <script src="/static/app.js"></script>
+</body>
+</html>

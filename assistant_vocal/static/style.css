@@ -1,0 +1,147 @@
+:root {
+  --fond: #02070d;
+  --fond-panneau: rgba(6, 26, 38, .55);
+  --cyan: #19c6f0;
+  --cyan-vif: #9ff0ff;
+  --cyan-doux: rgba(25, 198, 240, .18);
+  --texte: #d7f6ff;
+  --texte-doux: #7fb4c4;
+  --ambre: #ffb648;
+  --rouge: #ff5c6c;
+  --vert: #4dffb5;
+  --police-titre: "Orbitron", "Segoe UI", sans-serif;
+  --police: "Rajdhani", "Segoe UI", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body {
+  background: radial-gradient(ellipse at 50% 40%, #062033 0%, var(--fond) 70%) fixed, var(--fond);
+  color: var(--texte);
+  font-family: var(--police);
+  font-size: 17px;
+  overflow-x: hidden;
+}
+.grille {
+  position: fixed; inset: 0; pointer-events: none; opacity: .25;
+  background-image:
+    linear-gradient(var(--cyan-doux) 1px, transparent 1px),
+    linear-gradient(90deg, var(--cyan-doux) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse at center, #000 30%, transparent 75%);
+}
+button { font: inherit; color: var(--texte); background: transparent; border: 1px solid var(--cyan); border-radius: 3px; padding: .4em .9em; cursor: pointer; letter-spacing: .05em; }
+button:hover { background: var(--cyan-doux); }
+button.principal { background: rgba(25, 198, 240, .22); box-shadow: 0 0 12px rgba(25,198,240,.35); }
+button.petit { font-size: .8rem; padding: .2em .6em; }
+button:disabled { opacity: .4; cursor: wait; }
+:focus-visible { outline: 2px solid var(--cyan-vif); outline-offset: 2px; }
+
+/* Barre du haut */
+.barre { position: relative; display: flex; align-items: center; gap: 1.5rem; padding: .8rem 1.5rem; border-bottom: 1px solid var(--cyan-doux); }
+.logo { font-family: var(--police-titre); font-size: 1.4rem; letter-spacing: .35em; color: var(--cyan-vif); text-shadow: 0 0 12px var(--cyan); display: flex; flex-direction: column; }
+.logo small { font-family: var(--police); font-size: .7rem; letter-spacing: .3em; color: var(--texte-doux); text-shadow: none; text-transform: uppercase; }
+.voyants { display: flex; gap: .5rem; flex-wrap: wrap; margin-left: auto; }
+.voyant { font-family: var(--police-titre); font-size: .62rem; letter-spacing: .15em; padding: .25em .6em; border: 1px solid #234; color: var(--texte-doux); border-radius: 2px; }
+.voyant.ok { border-color: var(--vert); color: var(--vert); box-shadow: 0 0 8px rgba(77,255,181,.3); }
+.voyant.demo { border-color: var(--ambre); color: var(--ambre); }
+.voyant.actif { border-color: var(--rouge); color: var(--rouge); animation: clignote 1s infinite; }
+.horloge { font-family: var(--police-titre); text-align: right; display: flex; flex-direction: column; }
+.horloge span { font-size: 1.3rem; color: var(--cyan-vif); }
+.horloge small { font-family: var(--police); color: var(--texte-doux); font-size: .8rem; text-transform: capitalize; }
+.icone { border: none; font-size: 1.3rem; }
+
+/* Disposition */
+.hud { position: relative; display: grid; grid-template-columns: minmax(260px, 1fr) minmax(340px, 1.3fr) minmax(260px, 1fr); gap: 1.5rem; padding: 1.5rem; min-height: calc(100vh - 70px); }
+.panneau {
+  background: var(--fond-panneau); border: 1px solid var(--cyan-doux); padding: 1rem; display: flex; flex-direction: column; min-height: 0; max-height: calc(100vh - 110px);
+  clip-path: polygon(0 14px, 14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%);
+  backdrop-filter: blur(4px);
+}
+.titre-panneau { display: flex; align-items: center; gap: .6rem; margin-bottom: .8rem; border-bottom: 1px solid var(--cyan-doux); padding-bottom: .6rem; }
+.titre-panneau h2 { font-family: var(--police-titre); font-size: .85rem; letter-spacing: .3em; text-transform: uppercase; margin: 0; color: var(--cyan); }
+.titre-panneau button { margin-left: auto; }
+.compteur { font-family: var(--police-titre); font-size: .75rem; color: var(--fond); background: var(--cyan); padding: 0 .45em; border-radius: 2px; }
+.liste { list-style: none; margin: 0; padding: 0; overflow-y: auto; flex: 1; scrollbar-width: thin; scrollbar-color: var(--cyan) transparent; }
+.liste li { border-left: 2px solid var(--cyan-doux); padding: .55rem .7rem; margin-bottom: .55rem; background: rgba(25,198,240,.04); }
+.liste li.vide { border: none; background: none; color: var(--texte-doux); font-style: italic; }
+.liste li.lecture { border-left-color: var(--cyan-vif); background: rgba(25,198,240,.12); }
+.mail .ligne1 { display: flex; justify-content: space-between; gap: .5rem; font-size: .8rem; color: var(--texte-doux); }
+.mail .objet { font-weight: 600; margin: .15rem 0; overflow-wrap: anywhere; }
+.mail .resume { font-size: .92rem; color: #b6dbe6; margin: 0 0 .4rem; }
+.mail .reglage { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; font-size: .82rem; }
+.mail select { font: inherit; background: #031420; color: var(--texte); border: 1px solid var(--cyan-doux); padding: .1em .3em; }
+.mail .lire { font-size: .75rem; padding: .1em .5em; }
+.cat-Urgent { border-left-color: var(--rouge) !important; }
+.cat-À\ répondre { border-left-color: var(--ambre) !important; }
+.cat-Spam\ probable { opacity: .7; }
+.actions-tri { display: flex; justify-content: space-between; align-items: center; gap: .5rem; padding-top: .7rem; border-top: 1px solid var(--cyan-doux); font-size: .85rem; flex-wrap: wrap; }
+
+.evenement .quand { font-family: var(--police-titre); font-size: .72rem; color: var(--cyan); letter-spacing: .08em; }
+.evenement .titre { font-weight: 600; overflow-wrap: anywhere; }
+.evenement .lieu { font-size: .85rem; color: var(--texte-doux); }
+.jour { font-family: var(--police-titre); font-size: .7rem; letter-spacing: .25em; color: var(--texte-doux); text-transform: uppercase; margin: .8rem 0 .4rem; list-style: none; }
+.evenement.maintenant { border-left-color: var(--vert); }
+
+/* Centre */
+.centre { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+.noyau { position: relative; width: min(420px, 82vw); aspect-ratio: 1; cursor: pointer; }
+.noyau svg { width: 100%; height: 100%; overflow: visible; }
+.anneau { fill: none; stroke: var(--cyan); transform-origin: 200px 200px; }
+.a1 { stroke-width: 1; stroke-dasharray: 4 10; opacity: .5; animation: tourne 60s linear infinite; }
+.a2 { stroke-width: 6; stroke-dasharray: 160 40 30 60; opacity: .6; animation: tourne 22s linear infinite reverse; }
+.a3 { stroke-width: 2; stroke-dasharray: 2 6; opacity: .7; animation: tourne 40s linear infinite; }
+.a4 { stroke-width: 10; stroke-dasharray: 60 25; opacity: .35; animation: tourne 14s linear infinite; }
+.a5 { stroke-width: 2; stroke: var(--cyan-vif); opacity: .9; }
+#barres line { stroke: var(--cyan-vif); stroke-width: 3; stroke-linecap: round; opacity: .8; }
+#coeur { transition: r .08s linear; filter: drop-shadow(0 0 18px var(--cyan)); }
+.etat { position: absolute; left: 0; right: 0; bottom: 4%; text-align: center; font-family: var(--police-titre); font-size: .72rem; letter-spacing: .4em; color: var(--texte-doux); }
+.noyau.ecoute .a5, .noyau.ecoute .a2 { stroke: var(--rouge); }
+.noyau.ecoute .etat { color: var(--rouge); }
+.noyau.reflexion .a4 { animation-duration: 2s; }
+.noyau.parle .a2 { animation-duration: 6s; }
+.sous-titre { min-height: 3.2em; max-width: 640px; text-align: center; font-size: 1.15rem; line-height: 1.45; margin: 0; color: var(--cyan-vif); text-shadow: 0 0 8px rgba(25,198,240,.5); }
+.entendu { min-height: 1.3em; margin: 0; color: var(--texte-doux); font-style: italic; text-align: center; }
+.commandes { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; }
+.puce { border-radius: 999px; font-size: .85rem; border-color: var(--cyan-doux); }
+.saisie { display: flex; gap: .5rem; width: 100%; max-width: 640px; }
+.saisie input { flex: 1; min-width: 0; font: inherit; background: rgba(3, 20, 32, .8); color: var(--texte); border: 1px solid var(--cyan-doux); padding: .5em .8em; }
+.micro { width: 48px; height: 48px; border-radius: 50%; padding: 0; display: grid; place-items: center; flex: none; }
+.micro svg { width: 24px; fill: var(--cyan-vif); }
+.micro.actif { border-color: var(--rouge); box-shadow: 0 0 16px var(--rouge); }
+.micro.actif svg { fill: var(--rouge); }
+
+/* Fenêtres */
+.reglages, .bandeau { position: fixed; z-index: 10; background: #041826; border: 1px solid var(--cyan); box-shadow: 0 0 30px rgba(25,198,240,.35); }
+.confirmation { background: #041826; border: 1px solid var(--ambre); box-shadow: 0 0 20px rgba(255,182,72,.25); padding: .8rem 1.1rem; width: 100%; max-width: 640px; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.confirmation p { flex: 1 1 260px; }
+.confirmation p { margin: 0; color: var(--ambre); }
+.confirmation div { display: flex; gap: .6rem; margin-left: auto; }
+.reglages { top: 70px; right: 16px; width: min(360px, calc(100vw - 32px)); padding: 1rem 1.2rem; display: flex; flex-direction: column; gap: .8rem; }
+.reglages[hidden], .confirmation[hidden], .bandeau[hidden] { display: none; }
+.reglages h2 { font-family: var(--police-titre); font-size: .85rem; letter-spacing: .3em; margin: 0; color: var(--cyan); }
+.reglages label { display: flex; flex-direction: column; gap: .3rem; font-size: .9rem; }
+.reglages label.case { flex-direction: row; align-items: center; gap: .5rem; }
+.reglages select { font: inherit; background: #031420; color: var(--texte); border: 1px solid var(--cyan-doux); padding: .3em; }
+.note { font-size: .8rem; color: var(--texte-doux); margin: 0; }
+.bandeau { top: 80px; left: 50%; transform: translateX(-50%); padding: .6rem 1rem; border-color: var(--ambre); color: var(--ambre); width: max-content; max-width: calc(100vw - 32px); }
+.bandeau.erreur { border-color: var(--rouge); color: var(--rouge); }
+
+@keyframes tourne { to { transform: rotate(360deg); } }
+@keyframes clignote { 50% { opacity: .4; } }
+
+@media (prefers-reduced-motion: reduce) { .anneau { animation: none !important; } }
+
+@media (max-width: 1100px) {
+  .hud { grid-template-columns: 1fr 1fr; }
+  .centre { grid-column: 1 / -1; order: -1; }
+  .panneau { max-height: 60vh; }
+}
+@media (max-width: 700px) {
+  body { font-size: 16px; }
+  .barre { flex-wrap: wrap; gap: .6rem; padding: .7rem 16px; }
+  .voyants { order: 3; width: 100%; margin: 0; }
+  .horloge { margin-left: auto; }
+  .hud { grid-template-columns: 1fr; padding: 1rem 16px; gap: 1rem; }
+  .noyau { width: min(300px, 78vw); }
+}

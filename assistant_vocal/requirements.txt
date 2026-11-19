@@ -1,0 +1,5 @@
+flask>=3.0
+anthropic>=2.11
+google-api-python-client>=2.100
+google-auth-oauthlib>=1.2
+requests>=2.31        # uniquement pour la voix premium ElevenLabs (optionnelle)
