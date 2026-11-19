@@ -108,3 +108,9 @@ ELEVENLABS_VOICE_ID=...
   résumé ; la reconnaissance vocale de Chrome/Edge passe par les serveurs de Google/Microsoft.
 - Les mails sont traités comme des données : l'assistant a pour consigne de ne jamais suivre les
   instructions qu'ils contiennent et de classer les tentatives de manipulation en « Spam probable ».
+
+## Version claude.ai (sans installation)
+
+`jarvis_claude_ai.html` est la même interface, publiée comme page sur claude.ai : elle lit votre
+boîte via le connecteur Gmail de claude.ai, utilise Claude pour les résumés et le tri, la voix et
+la dictée de claude.ai. Aucune clé ni serveur à installer. Google Agenda n'y est pas encore relié.
