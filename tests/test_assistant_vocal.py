@@ -119,3 +119,34 @@ def test_ia_appel_claude_simule(monkeypatch, tmp_path):
     assert appels["model"] == "claude-opus-5-5"
     assert appels["output_config"]["format"]["type"] == "json_schema"
     assert "<mails>" in appels["messages"][0]["content"]
+
+
+def test_api_ecoute_sans_cle(client):
+    assert client.post("/api/ecoute").status_code == 404
+
+
+def test_api_ecoute_transcrit(sans_cle, tmp_path, monkeypatch):
+    import io
+    import requests
+
+    appels = {}
+
+    class Rep:
+        status_code = 200
+        text = ""
+        def json(self):
+            return {"text": " résume mes mails "}
+
+    def faux_post(url, **kw):
+        appels["url"] = url
+        appels["data"] = kw["data"]
+        return Rep()
+
+    monkeypatch.setattr(requests, "post", faux_post)
+    from assistant_vocal.config import Config
+    from assistant_vocal.demo import Demo
+    c2 = creer_app(Config(dossier=tmp_path, demo=True, elevenlabs_cle="k"), source=Demo()).test_client()
+    assert c2.get("/api/etat").get_json()["ecoute_serveur"] is True
+    r = c2.post("/api/ecoute", data={"audio": (io.BytesIO(b"son"), "voix.webm")}, content_type="multipart/form-data")
+    assert r.get_json() == {"texte": "résume mes mails"}
+    assert appels["url"].endswith("/speech-to-text") and appels["data"]["model_id"] == "scribe_v1"

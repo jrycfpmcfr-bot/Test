@@ -117,19 +117,47 @@ function stopParole() {
   analyseur = null; etat(null);
 }
 
+// Filtre « IA » : voix un peu plus dense et métallique, avec un léger écho de cockpit.
+function chaineEffetIA(ctx, entree, sortie) {
+  const passeHaut = ctx.createBiquadFilter(); passeHaut.type = "highpass"; passeHaut.frequency.value = 110;
+  const presence = ctx.createBiquadFilter(); presence.type = "peaking"; presence.frequency.value = 2800; presence.Q.value = 0.9; presence.gain.value = 4;
+  const air = ctx.createBiquadFilter(); air.type = "highshelf"; air.frequency.value = 7000; air.gain.value = 2;
+  const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -22; comp.ratio.value = 3.5; comp.attack.value = 0.004; comp.release.value = 0.2;
+  const sec = ctx.createGain(); sec.gain.value = 0.9;
+  // Doublage très court (effet « synthétique ») + petit écho
+  const doublage = ctx.createDelay(0.1); doublage.delayTime.value = 0.011;
+  const gDoublage = ctx.createGain(); gDoublage.gain.value = 0.28;
+  const echo = ctx.createDelay(1); echo.delayTime.value = 0.085;
+  const gEcho = ctx.createGain(); gEcho.gain.value = 0.12;
+  const retour = ctx.createGain(); retour.gain.value = 0.18;
+  entree.connect(passeHaut).connect(presence).connect(air).connect(comp);
+  comp.connect(sec).connect(sortie);
+  comp.connect(doublage).connect(gDoublage).connect(sortie);
+  comp.connect(echo).connect(gEcho).connect(sortie);
+  echo.connect(retour).connect(echo);
+}
+
+let alerteVoix = false;
 async function parlerPremium(texte) {
   const rep = await fetch("/api/voix", { method: "POST", headers: { "Content-Type": "application/json" },
                                           body: JSON.stringify({ texte }) });
-  if (!rep.ok) throw new Error("voix premium indisponible");
+  if (!rep.ok) {
+    const err = await rep.json().catch(() => ({}));
+    if (!alerteVoix) { bandeau(err.erreur || "Voix ElevenLabs indisponible.", true); alerteVoix = true; }
+    throw new Error("voix premium indisponible");
+  }
   const url = URL.createObjectURL(await rep.blob());
   const audio = new Audio(url);
   audioCourant = audio;
   try {
     ctxAudio ||= new AudioContext();
+    if (ctxAudio.state === "suspended") await ctxAudio.resume();
     const src = ctxAudio.createMediaElementSource(audio);
     analyseur = ctxAudio.createAnalyser(); analyseur.fftSize = 128;
     tampon = new Uint8Array(analyseur.frequencyBinCount);
-    src.connect(analyseur); analyseur.connect(ctxAudio.destination);
+    if ($("r-effet").checked) chaineEffetIA(ctxAudio, src, analyseur);
+    else src.connect(analyseur);
+    analyseur.connect(ctxAudio.destination);
   } catch { analyseur = null; }
   await new Promise((ok) => { audio.onended = audio.onerror = ok; audio.play().catch(ok); });
   URL.revokeObjectURL(url); analyseur = null;
@@ -176,7 +204,7 @@ const Reco = window.SpeechRecognition || window.webkitSpeechRecognition;
 let reco = null, ecouteActive = false, enPause = false;
 
 function initReco() {
-  if (!Reco) { $("v-micro").title = "Reconnaissance vocale non prise en charge (utilisez Chrome ou Edge)"; return; }
+  if (!Reco) { $("v-micro").title = "Pas de reconnaissance vocale dans ce navigateur : écoute via ElevenLabs si configurée"; return; }
   reco = new Reco();
   reco.lang = "fr-FR";
   reco.interimResults = true;
@@ -196,12 +224,75 @@ function initReco() {
     if ($("r-ecoute").checked && !enPause) setTimeout(() => demarrerEcoute(), 300);
   };
   reco.onerror = (e) => {
-    if (e.error === "not-allowed") bandeau("Accès au micro refusé par le navigateur.", true);
+    // Safari refuse souvent (Siri/Dictée désactivés) : on bascule sur l'écoute ElevenLabs si elle existe.
+    if ((e.error === "service-not-allowed" || e.error === "network" || e.error === "language-not-supported") && S.ecouteServeur) {
+      reco = null;
+      bandeau("Reconnaissance du navigateur indisponible : j'utilise l'écoute ElevenLabs. Recliquez pour parler.");
+    } else if (e.error === "not-allowed" || e.error === "service-not-allowed") {
+      bandeau("Accès au micro refusé : autorisez-le dans les réglages du navigateur pour ce site.", true);
+    }
   };
 }
 
+// ---------------------------------------------------------------------------
+// Écoute par enregistrement (Firefox, Safari sans Dictée) : transcription ElevenLabs
+// ---------------------------------------------------------------------------
+let enregistreur = null;
+async function enregistrer() {
+  if (enregistreur) { enregistreur.stop(); return; }   // second clic : fin de la phrase
+  let flux;
+  try { flux = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }); }
+  catch { bandeau("Accès au micro refusé : autorisez-le dans les réglages du navigateur pour ce site.", true); return; }
+  stopParole();
+  const morceaux = [];
+  const rec = new MediaRecorder(flux);
+  enregistreur = rec;
+  ecouteActive = true;
+  $("btn-micro").classList.add("actif"); $("v-micro").classList.add("actif"); etat("ecoute");
+  $("entendu").textContent = "…";
+
+  // Fin automatique après ~1,3 s de silence (ou 15 s au maximum).
+  const ctx = new AudioContext();
+  const an = ctx.createAnalyser(); an.fftSize = 1024;
+  ctx.createMediaStreamSource(flux).connect(an);
+  const buf = new Float32Array(an.fftSize);
+  let aParle = false, silenceDepuis = performance.now();
+  const debut = performance.now();
+  const veille = setInterval(() => {
+    an.getFloatTimeDomainData(buf);
+    const rms = Math.sqrt(buf.reduce((s, v) => s + v * v, 0) / buf.length);
+    const t = performance.now();
+    if (rms > 0.025) { aParle = true; silenceDepuis = t; }
+    if ((aParle && t - silenceDepuis > 1300) || t - debut > 15000 || (!aParle && t - debut > 7000)) rec.stop();
+  }, 100);
+
+  rec.ondataavailable = (e) => e.data.size && morceaux.push(e.data);
+  rec.onstop = async () => {
+    clearInterval(veille); flux.getTracks().forEach((p) => p.stop()); ctx.close();
+    enregistreur = null; ecouteActive = false;
+    $("btn-micro").classList.remove("actif"); $("v-micro").classList.remove("actif");
+    if (!aParle) { etat(null); $("entendu").textContent = ""; return; }
+    etat("reflexion");
+    const fd = new FormData();
+    const type = rec.mimeType || "audio/webm";
+    fd.append("audio", new Blob(morceaux, { type }), "voix." + (type.includes("mp4") ? "mp4" : type.includes("ogg") ? "ogg" : "webm"));
+    try {
+      const r = await fetch("/api/ecoute", { method: "POST", body: fd });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(j.erreur || "Transcription impossible.");
+      etat(null);
+      if (j.texte) traiter(j.texte); else $("entendu").textContent = "Je n'ai rien entendu.";
+    } catch (e) { etat(null); bandeau(e.message, true); }
+  };
+  rec.start();
+}
+
 function demarrerEcoute() {
-  if (!reco) { bandeau("La reconnaissance vocale nécessite Chrome ou Edge. Vous pouvez écrire vos demandes.", true); return; }
+  if (!reco) {
+    if (S.ecouteServeur && navigator.mediaDevices && window.MediaRecorder) return enregistrer();
+    bandeau("Ce navigateur ne sait pas écouter. Ajoutez une clé ElevenLabs (voir la notice) ou utilisez Chrome/Edge. Vous pouvez écrire vos demandes.", true);
+    return;
+  }
   if (ecouteActive) return;
   stopParole();
   reco.continuous = $("r-ecoute").checked;
@@ -210,7 +301,10 @@ function demarrerEcoute() {
   $("btn-micro").classList.add("actif"); $("v-micro").classList.add("actif");
   if (!$("r-ecoute").checked) etat("ecoute");
 }
-function arreterEcoute() { if (reco && ecouteActive) reco.stop(); }
+function arreterEcoute() {
+  if (enregistreur) enregistreur.stop();
+  else if (reco && ecouteActive) reco.stop();
+}
 
 function pauseEcoute(oui) {
   // Évite que l'assistant s'entende lui-même pendant qu'il parle.
@@ -470,9 +564,11 @@ function lierInterface() {
   });
 
   // Réglages
-  $("r-hauteur").value = lireReglage("hauteur", 0.85);
-  $("r-debit").value = lireReglage("debit", 1.0);
+  $("r-hauteur").value = lireReglage("hauteur", 0.8);
+  $("r-debit").value = lireReglage("debit", 0.95);
   $("r-premium").checked = lireReglage("premium", true);
+  $("r-effet").checked = lireReglage("effet", true);
+  $("r-effet").addEventListener("change", (e) => ecrireReglage("effet", e.target.checked));
   $("r-ecoute").checked = lireReglage("ecoute", false);
   $("btn-reglages").addEventListener("click", () => ($("reglages").hidden = !$("reglages").hidden));
   $("r-fermer").addEventListener("click", () => ($("reglages").hidden = true));
@@ -494,14 +590,16 @@ async function demarrer() {
   initReco();
   try {
     const e = await api("/api/etat");
-    Object.assign(S, { nom: e.nom, utilisateur: e.utilisateur, categories: e.categories, voixPremium: e.voix_premium });
+    Object.assign(S, { nom: e.nom, utilisateur: e.utilisateur, categories: e.categories, voixPremium: e.voix_premium,
+                       ecouteServeur: e.ecoute_serveur });
     $("nom").textContent = e.nom.toUpperCase();
     document.title = `${e.nom} — assistant`;
     $("v-ia").classList.add(e.ia ? "ok" : "demo");
     $("v-ia").title = e.ia ? "Claude connecté" : "Sans clé API : tri par mots-clés";
     if (e.demo) { $("v-mail").classList.add("demo"); $("v-agenda").classList.add("demo"); bandeau("Mode démonstration : données fictives."); }
-    if (!e.voix_premium) $("r-premium").closest("label").hidden = true;
-    if (Reco) $("v-micro").classList.add("ok");
+    if (!e.voix_premium) { $("r-premium").closest("label").hidden = true; $("r-effet").closest("label").hidden = true; }
+    if (!Reco) $("r-ecoute").closest("label").hidden = true;  // l'écoute permanente demande la reconnaissance du navigateur
+    if (Reco || e.ecoute_serveur) $("v-micro").classList.add("ok");
     if (lireReglage("ecoute", false)) demarrerEcoute();
     $("sous-titre").textContent = `Bonjour, ${S.utilisateur}. Cliquez sur le noyau ou maintenez Espace pour me parler.`;
   } catch (err) {

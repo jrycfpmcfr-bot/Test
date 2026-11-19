@@ -48,6 +48,7 @@ def creer_app(cfg: Config, source=None, ia: IA | None = None) -> Flask:
             "demo": cfg.demo,
             "ia": cfg.ia_active,
             "voix_premium": cfg.voix_premium,
+            "ecoute_serveur": bool(cfg.elevenlabs_cle),
             "categories": CATEGORIES,
             "heure": datetime.now().astimezone().isoformat(),
         })
@@ -173,13 +174,47 @@ def creer_app(cfg: Config, source=None, ia: IA | None = None) -> Flask:
                 f"https://api.elevenlabs.io/v1/text-to-speech/{cfg.elevenlabs_voix}",
                 headers={"xi-api-key": cfg.elevenlabs_cle, "accept": "audio/mpeg"},
                 json={"text": texte, "model_id": "eleven_multilingual_v2",
-                      "voice_settings": {"stability": 0.6, "similarity_boost": 0.8}},
+                      "voice_settings": {"stability": 0.65, "similarity_boost": 0.8, "style": 0.1}},
                 timeout=60,
             )
         except requests.RequestException as e:
             return erreur(f"ElevenLabs injoignable : {e}", 502)
         if r.status_code != 200:
-            return erreur(f"ElevenLabs a répondu {r.status_code}.", 502)
+            return erreur(_erreur_elevenlabs(r), 502)
         return Response(r.content, mimetype="audio/mpeg")
 
+    @app.post("/api/ecoute")
+    def api_ecoute():
+        """Transcription de la voix (ElevenLabs) pour les navigateurs sans reconnaissance vocale (Firefox…)."""
+        if not cfg.elevenlabs_cle:
+            return erreur("Écoute par ElevenLabs non configurée.", 404)
+        import requests
+
+        audio = request.files.get("audio")
+        if audio is None:
+            return erreur("Aucun son reçu.", 400)
+        try:
+            r = requests.post(
+                "https://api.elevenlabs.io/v1/speech-to-text",
+                headers={"xi-api-key": cfg.elevenlabs_cle},
+                data={"model_id": "scribe_v1", "language_code": "fr"},
+                files={"file": (audio.filename or "voix.webm", audio.stream, audio.mimetype or "application/octet-stream")},
+                timeout=60,
+            )
+        except requests.RequestException as e:
+            return erreur(f"ElevenLabs injoignable : {e}", 502)
+        if r.status_code != 200:
+            return erreur(_erreur_elevenlabs(r), 502)
+        return jsonify({"texte": (r.json().get("text") or "").strip()})
+
     return app
+
+
+def _erreur_elevenlabs(r) -> str:
+    if r.status_code == 401:
+        return "Clé ElevenLabs refusée : vérifiez ELEVENLABS_API_KEY."
+    if r.status_code == 402 or "quota" in r.text.lower():
+        return "Crédits ElevenLabs du mois épuisés : je repasse sur la voix de l'ordinateur."
+    if r.status_code == 404:
+        return "Voix ElevenLabs introuvable : vérifiez ELEVENLABS_VOICE_ID."
+    return f"ElevenLabs a répondu {r.status_code}."

@@ -29,7 +29,8 @@ class Config:
     max_mails: int = 15
     jours_agenda: int = 7
     elevenlabs_cle: str = ""
-    elevenlabs_voix: str = ""
+    # « Daniel » : voix masculine grave et posée de la bibliothèque standard ElevenLabs.
+    elevenlabs_voix: str = "onwK4e9ZLuTAKqWW03F9"
     port: int = 5050
 
     @property
@@ -61,7 +62,7 @@ def charger_config() -> Config:
         max_mails=int(os.environ.get("ASSISTANT_MAX_MAILS", "15")),
         jours_agenda=int(os.environ.get("ASSISTANT_JOURS_AGENDA", "7")),
         elevenlabs_cle=os.environ.get("ELEVENLABS_API_KEY", ""),
-        elevenlabs_voix=os.environ.get("ELEVENLABS_VOICE_ID", ""),
+        elevenlabs_voix=os.environ.get("ELEVENLABS_VOICE_ID") or "onwK4e9ZLuTAKqWW03F9",
         port=int(os.environ.get("ASSISTANT_PORT", "5050")),
     )
     demo_env = os.environ.get("ASSISTANT_DEMO", "").lower()

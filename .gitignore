@@ -6,3 +6,4 @@ diff_*/
 .env
 credentials.json
 token.json
+.venv-jarvis/

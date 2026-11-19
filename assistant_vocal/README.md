@@ -21,7 +21,7 @@ python -m assistant_vocal --demo
 ```
 
 La page s'ouvre sur `http://127.0.0.1:5050` avec des mails et rendez-vous fictifs.
-Utilisez **Chrome ou Edge** (ce sont eux qui gèrent la reconnaissance vocale).
+Sans clé ElevenLabs, le micro demande **Chrome ou Edge** (voir plus bas pour Firefox et Safari).
 
 ## Installation complète
 
@@ -50,6 +50,10 @@ Au premier lancement, une page Google s'ouvre pour autoriser l'accès ; le jeton
 
 ### 3. Lancer
 
+Double-cliquez sur `assistant_vocal/lancer_mac.command` (Mac) ou `assistant_vocal/lancer_windows.bat`
+(Windows) : la première fois, il installe tout ce qu'il faut, puis ouvre Jarvis dans le navigateur.
+Ou, dans un terminal :
+
 ```bash
 python -m assistant_vocal
 ```
@@ -74,19 +78,31 @@ Dans ⚙ *Réglages*, l'option **Écoute permanente** le fait réagir dès que v
 Dans la liste, vous pouvez changer la catégorie d'un mail ou cocher/décocher « archiver » avant
 d'appliquer le tri.
 
-## La voix
+## La voix « Jarvis » et le micro (ElevenLabs, gratuit)
 
-Par défaut, c'est la synthèse vocale du navigateur : dans ⚙ *Réglages*, choisissez une voix
-française masculine (ex. « Thomas », « Paul », « Henri » selon le système) et baissez un peu la
-hauteur pour un ton de majordome.
+Avec une clé ElevenLabs, Jarvis gagne :
 
-Pour une voix nettement plus naturelle, branchez **ElevenLabs** (payant) : choisissez dans leur
-bibliothèque une voix posée et distinguée, puis ajoutez dans le `.env` :
+- une **voix grave et posée** (par défaut « Daniel », voix standard d'ElevenLabs) passée dans un
+  **filtre « IA »** (présence, doublage court, léger écho de cockpit) — désactivable dans ⚙ ;
+- un **micro qui marche dans tous les navigateurs**, Firefox et Safari compris : la phrase est
+  enregistrée puis transcrite par ElevenLabs (cliquez, parlez, il s'arrête tout seul au silence).
+
+1. Créez un compte gratuit sur <https://elevenlabs.io> (environ 10 000 caractères de voix par mois,
+   soit une dizaine de minutes de parole).
+2. *Profil → API Keys* : créez une clé.
+3. Ajoutez-la dans `~/.assistant_vocal/.env` :
 
 ```
 ELEVENLABS_API_KEY=...
-ELEVENLABS_VOICE_ID=...
+# Facultatif : une autre voix de la bibliothèque ElevenLabs (bouton « ID » sur la voix)
+# ELEVENLABS_VOICE_ID=...
 ```
+
+Quand le quota du mois est épuisé, Jarvis repasse automatiquement sur la voix de l'ordinateur.
+Choisissez une voix de la bibliothèque, pas un clone de la voix d'un acteur réel.
+
+Sans ElevenLabs, c'est la synthèse vocale du navigateur (choix de la voix et de la hauteur dans ⚙),
+et le micro ne fonctionne que dans Chrome, Edge ou Safari avec la Dictée activée.
 
 ## Réglages (`.env`)
 
