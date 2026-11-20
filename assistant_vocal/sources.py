@@ -15,6 +15,7 @@ from datetime import datetime, timedelta
 from email.utils import parsedate_to_datetime
 
 from .config import Config
+from .envoi import analyser_desabonnement, construire_reponse, desabonner_un_clic, message_desabonnement
 from .google_services import MAX_CORPS, _texte_depuis_html
 
 DOSSIER_RACINE = "Assistant"
@@ -82,6 +83,10 @@ def message_vers_mail(uid: str, brut: bytes) -> dict:
         "date": date,
         "extrait": corps[:180],
         "corps": corps[:MAX_CORPS],
+        "repondre_a": _decoder_entete(msg.get("Reply-To")),
+        "message_id": (msg.get("Message-ID") or "").strip(),
+        "references": " ".join((msg.get("References") or "").split()),
+        "desabonnement": analyser_desabonnement(msg.get("List-Unsubscribe"), msg.get("List-Unsubscribe-Post")),
     }
 
 
@@ -91,10 +96,13 @@ def message_vers_mail(uid: str, brut: bytes) -> dict:
 class Icloud:
     HOTE, PORT = "imap.mail.me.com", 993
 
-    def __init__(self, adresse: str, mot_de_passe: str, imap_factory=None):
+    SMTP_HOTE, SMTP_PORT = "smtp.mail.me.com", 587
+
+    def __init__(self, adresse: str, mot_de_passe: str, imap_factory=None, smtp_factory=None):
         self.adresse = adresse
         self.mot_de_passe = mot_de_passe
         self._factory = imap_factory or (lambda: imaplib.IMAP4_SSL(self.HOTE, self.PORT, timeout=30))
+        self._smtp_factory = smtp_factory
         self._dossiers_connus: set[str] = set()
 
     def _connexion(self):
@@ -162,6 +170,39 @@ class Icloud:
                 raise ErreurSource(f"Déplacement vers {categorie} refusé par iCloud.")
         finally:
             imap.logout()
+
+    def _envoyer(self, msg) -> None:
+        import smtplib
+
+        try:
+            smtp = self._smtp_factory() if self._smtp_factory else smtplib.SMTP(self.SMTP_HOTE, self.SMTP_PORT, timeout=30)
+            with smtp:
+                smtp.starttls()
+                smtp.login(self.adresse, self.mot_de_passe)
+                smtp.send_message(msg)
+        except smtplib.SMTPAuthenticationError as e:
+            raise ErreurSource("iCloud refuse l'envoi : vérifiez le mot de passe pour app.") from e
+        except (smtplib.SMTPException, OSError) as e:
+            raise ErreurSource(f"Envoi impossible : {e}") from e
+
+    def repondre(self, mail: dict, texte: str) -> None:
+        self._envoyer(construire_reponse(mail, texte, self.adresse))
+        if mail.get("id"):  # la réponse est partie : on marque l'original comme lu
+            try:
+                self.marquer_lu(mail["id"])
+            except ErreurSource:
+                pass
+
+    def desabonner(self, mail: dict, poster=None) -> str:
+        d = mail.get("desabonnement") or {}
+        if d.get("un_clic") and desabonner_un_clic(d["https"], poster):
+            return "fait"
+        if d.get("mailto"):
+            self._envoyer(message_desabonnement(d["mailto"], self.adresse))
+            return "fait"
+        if d.get("https"):
+            return d["https"]  # page à ouvrir : l'expéditeur ne propose pas de désabonnement automatique
+        raise ErreurSource("Ce mail ne propose pas de désabonnement.")
 
     def marquer_lu(self, mail_id: str) -> None:
         imap = self._connexion()
@@ -258,6 +299,18 @@ class Assemblage:
     def marquer_lu(self, mail_id):
         src, ident = self._boite(mail_id)
         src.marquer_lu(ident)
+
+    def repondre(self, mail: dict, texte: str):
+        src, ident = self._boite(mail["id"])
+        src.repondre(dict(mail, id=ident), texte)
+
+    def desabonner(self, mail: dict) -> str:
+        src, ident = self._boite(mail["id"])
+        return src.desabonner(dict(mail, id=ident))
+
+    @property
+    def agenda_modifiable(self) -> bool:
+        return self.agenda is not None and not isinstance(self.agenda, AgendaIcs)
 
     def evenements(self, jours):
         if self.agenda is None:

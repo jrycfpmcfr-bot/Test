@@ -38,7 +38,7 @@ button:disabled { opacity: .4; cursor: wait; }
 :focus-visible { outline: 2px solid var(--cyan-vif); outline-offset: 2px; }
 
 /* Barre du haut */
-.barre { position: relative; display: flex; align-items: center; gap: 1.5rem; padding: .8rem 1.5rem; border-bottom: 1px solid var(--cyan-doux); }
+.barre { position: relative; display: flex; align-items: center; gap: 1.5rem; padding: calc(.8rem + env(safe-area-inset-top, 0px)) max(1.5rem, env(safe-area-inset-right, 0px)) .8rem max(1.5rem, env(safe-area-inset-left, 0px)); border-bottom: 1px solid var(--cyan-doux); }
 .logo { font-family: var(--police-titre); font-size: 1.4rem; letter-spacing: .35em; color: var(--cyan-vif); text-shadow: 0 0 12px var(--cyan); display: flex; flex-direction: column; }
 .logo small { font-family: var(--police); font-size: .7rem; letter-spacing: .3em; color: var(--texte-doux); text-shadow: none; text-transform: uppercase; }
 .voyants { display: flex; gap: .5rem; flex-wrap: wrap; margin-left: auto; }
@@ -117,7 +117,25 @@ button:disabled { opacity: .4; cursor: wait; }
 .confirmation p { flex: 1 1 260px; }
 .confirmation p { margin: 0; color: var(--ambre); }
 .confirmation div { display: flex; gap: .6rem; margin-left: auto; }
-.reglages { top: 70px; right: 16px; width: min(360px, calc(100vw - 32px)); padding: 1rem 1.2rem; display: flex; flex-direction: column; gap: .8rem; }
+.reglages { top: calc(70px + env(safe-area-inset-top, 0px)); right: 16px; width: min(400px, calc(100vw - 32px)); max-height: calc(100vh - 90px - env(safe-area-inset-top, 0px)); overflow-y: auto; padding: 1rem 1.2rem; display: flex; flex-direction: column; gap: .7rem; }
+.entete-reglages { display: flex; justify-content: space-between; align-items: center; position: sticky; top: -1rem; background: #041826; padding: .5rem 0; z-index: 1; }
+.reglages h3 { font-family: var(--police-titre); font-size: .72rem; letter-spacing: .25em; text-transform: uppercase; color: var(--cyan); margin: .8rem 0 0; border-top: 1px solid var(--cyan-doux); padding-top: .8rem; }
+.reglages h4 { margin: .6rem 0 0; font-size: .95rem; color: var(--cyan-vif); }
+.reglages section { display: flex; flex-direction: column; gap: .7rem; }
+.reglages input:not([type=checkbox]):not([type=range]), .reglages textarea { font: inherit; background: #031420; color: var(--texte); border: 1px solid var(--cyan-doux); padding: .35em .5em; width: 100%; }
+.reglages input[type=file] { font-size: .85rem; }
+.reglages .tester { align-self: flex-start; font-size: .85rem; }
+.ligne-boutons { display: flex; gap: .5rem; flex-wrap: wrap; }
+.ok-test { color: var(--vert); } .ko-test { color: var(--rouge); }
+#brouillon { width: 100%; font: inherit; background: #031420; color: var(--texte); border: 1px solid var(--cyan-doux); padding: .5em; flex-basis: 100%; }
+.mail .outils { display: flex; gap: .35rem; flex-wrap: wrap; margin-top: .35rem; }
+.mail .outils button { font-size: .75rem; padding: .1em .5em; }
+.mail .etoile { border: none; padding: 0 .2em; font-size: 1rem; color: var(--texte-doux); }
+.mail .etoile.on { color: var(--ambre); text-shadow: 0 0 8px rgba(255,182,72,.6); }
+.mail.prioritaire { border-left-color: var(--ambre); }
+.bandeau a { color: inherit; }
+.noyau.demarrage svg { animation: allumage 1.6s ease-out; }
+@keyframes allumage { 0% { transform: scale(.6); opacity: 0; filter: brightness(3); } 60% { opacity: 1; } 100% { transform: scale(1); filter: none; } }
 .reglages[hidden], .confirmation[hidden], .bandeau[hidden] { display: none; }
 .reglages h2 { font-family: var(--police-titre); font-size: .85rem; letter-spacing: .3em; margin: 0; color: var(--cyan); }
 .reglages label { display: flex; flex-direction: column; gap: .3rem; font-size: .9rem; }
@@ -130,7 +148,7 @@ button:disabled { opacity: .4; cursor: wait; }
 @keyframes tourne { to { transform: rotate(360deg); } }
 @keyframes clignote { 50% { opacity: .4; } }
 
-@media (prefers-reduced-motion: reduce) { .anneau { animation: none !important; } }
+@media (prefers-reduced-motion: reduce) { .anneau, .noyau.demarrage svg { animation: none !important; } }
 
 @media (max-width: 1100px) {
   .hud { grid-template-columns: 1fr 1fr; }
@@ -139,7 +157,7 @@ button:disabled { opacity: .4; cursor: wait; }
 }
 @media (max-width: 700px) {
   body { font-size: 16px; }
-  .barre { flex-wrap: wrap; gap: .6rem; padding: .7rem 16px; }
+  .barre { flex-wrap: wrap; gap: .6rem; padding: calc(.7rem + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) .7rem max(16px, env(safe-area-inset-left, 0px)); }
   .voyants { order: 3; width: 100%; margin: 0; }
   .horloge { margin-left: auto; }
   .hud { grid-template-columns: 1fr; padding: 1rem 16px; gap: 1rem; }

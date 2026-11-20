@@ -1,6 +1,6 @@
 # pid_diff — comparaison de deux schémas P&ID
 
-> Ce dépôt contient aussi **[assistant_vocal](assistant_vocal/README.md)** : un assistant vocal
+> Ce dépôt contient aussi **[Jarvis](assistant_vocal/README.md)** : un assistant vocal
 > à interface HUD qui résume vos mails à voix haute, présente votre agenda et aide à trier la boîte
 > de réception (`python -m assistant_vocal --demo` pour l'essayer).
 

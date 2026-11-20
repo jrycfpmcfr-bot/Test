@@ -125,3 +125,48 @@ def test_assemblage_prefixe_et_panne_partielle():
     assert ok.ranges == [("1", "Urgent", False, False)]
     with pytest.raises(ErreurSource):
         Assemblage({"gmail": Panne()}).mails_non_lus(5)
+
+
+def test_envoi_reponse_et_desabonnement():
+    from assistant_vocal.envoi import analyser_desabonnement, construire_reponse, message_desabonnement
+    mail = {"id": "8", "de": "Céline Roux <celine@exemple.fr>", "objet": "Réunion demain",
+            "message_id": "<abc@exemple.fr>", "references": "<zzz@exemple.fr>", "repondre_a": ""}
+    m = construire_reponse(mail, "Oui, à demain.", "moi@icloud.com")
+    assert m["To"] == "Céline Roux <celine@exemple.fr>" and m["Subject"] == "Re: Réunion demain"
+    assert m["In-Reply-To"] == "<abc@exemple.fr>" and m["References"] == "<zzz@exemple.fr> <abc@exemple.fr>"
+    d = analyser_desabonnement("<mailto:quit@liste.fr?subject=stop>, <https://liste.fr/u/1>", "List-Unsubscribe=One-Click")
+    assert d == {"https": "https://liste.fr/u/1", "mailto": "mailto:quit@liste.fr?subject=stop", "un_clic": True}
+    assert analyser_desabonnement("<http://non-securise.fr>", None) is None
+    q = message_desabonnement("mailto:quit@liste.fr?subject=stop", "moi@icloud.com")
+    assert q["To"] == "quit@liste.fr" and q["Subject"] == "stop"
+
+
+def test_icloud_repond_par_smtp():
+    envoyes = []
+
+    class FauxSmtp:
+        def __enter__(self): return self
+        def __exit__(self, *a): pass
+        def starttls(self): envoyes.append("tls")
+        def login(self, u, p): envoyes.append(("login", u))
+        def send_message(self, m): envoyes.append(m)
+
+    faux = FauxImap()
+    ic = Icloud("moi@icloud.com", "pw", imap_factory=lambda: faux, smtp_factory=FauxSmtp)
+    mails = ic.mails_non_lus(1)
+    ic.repondre(mails[0], "Oui, 10 h me va.")
+    assert envoyes[0] == "tls" and envoyes[1] == ("login", "moi@icloud.com")
+    assert envoyes[2]["To"] == "Céline Roux <celine@exemple.fr>" and "10 h" in envoyes[2].get_content()
+    assert ("STORE", b"8", "+FLAGS", r"(\Seen)") in faux.journal  # original marqué lu
+
+
+def test_icloud_desabonnement_un_clic():
+    from types import SimpleNamespace
+    appels = []
+    ic = Icloud("moi@icloud.com", "pw", imap_factory=FauxImap)
+    mail = {"desabonnement": {"https": "https://liste.fr/u/1", "mailto": None, "un_clic": True}}
+    poster = lambda url, **kw: appels.append((url, kw["data"])) or SimpleNamespace(status_code=200)
+    assert ic.desabonner(mail, poster=poster) == "fait"
+    assert appels == [("https://liste.fr/u/1", {"List-Unsubscribe": "One-Click"})]
+    sans = {"desabonnement": {"https": "https://liste.fr/page", "mailto": None, "un_clic": False}}
+    assert ic.desabonner(sans) == "https://liste.fr/page"  # à ouvrir soi-même

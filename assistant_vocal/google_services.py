@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from email.utils import parsedate_to_datetime
 
 from .config import Config
+from .envoi import analyser_desabonnement, construire_reponse, desabonner_un_clic, message_desabonnement
 
 SCOPE_GMAIL = "https://www.googleapis.com/auth/gmail.modify"  # lire, étiqueter, archiver (pas de suppression)
 SCOPE_AGENDA = "https://www.googleapis.com/auth/calendar.events"  # lire et créer des événements
@@ -64,6 +65,10 @@ def convertir_message(msg: dict) -> dict:
         "extrait": html.unescape(msg.get("snippet", "")),
         "corps": extraire_corps(msg.get("payload", {})),
         "libelles": msg.get("labelIds", []),
+        "repondre_a": entetes.get("reply-to", ""),
+        "message_id": entetes.get("message-id", ""),
+        "references": entetes.get("references", ""),
+        "desabonnement": analyser_desabonnement(entetes.get("list-unsubscribe"), entetes.get("list-unsubscribe-post")),
     }
 
 
@@ -168,6 +173,32 @@ class Google:
         self.gmail.users().messages().modify(
             userId="me", id=mail_id, body={"removeLabelIds": ["UNREAD"]}
         ).execute()
+
+    def _adresse(self) -> str:
+        if not getattr(self, "_moi", None):
+            self._moi = self.gmail.users().getProfile(userId="me").execute()["emailAddress"]
+        return self._moi
+
+    def _envoyer(self, msg, thread_id: str | None = None) -> None:
+        corps = {"raw": base64.urlsafe_b64encode(msg.as_bytes()).decode()}
+        if thread_id:
+            corps["threadId"] = thread_id
+        self.gmail.users().messages().send(userId="me", body=corps).execute()
+
+    def repondre(self, mail: dict, texte: str) -> None:
+        self._envoyer(construire_reponse(mail, texte, self._adresse()), mail.get("thread_id"))
+        self.marquer_lu(mail["id"])
+
+    def desabonner(self, mail: dict, poster=None) -> str:
+        d = mail.get("desabonnement") or {}
+        if d.get("un_clic") and desabonner_un_clic(d["https"], poster):
+            return "fait"
+        if d.get("mailto"):
+            self._envoyer(message_desabonnement(d["mailto"], self._adresse()))
+            return "fait"
+        if d.get("https"):
+            return d["https"]
+        raise RuntimeError("Ce mail ne propose pas de désabonnement.")
 
     # --- Agenda ----------------------------------------------------------
     def evenements(self, jours: int) -> list[dict]:

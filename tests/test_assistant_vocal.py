@@ -150,3 +150,69 @@ def test_api_ecoute_transcrit(sans_cle, tmp_path, monkeypatch):
     r = c2.post("/api/ecoute", data={"audio": (io.BytesIO(b"son"), "voix.webm")}, content_type="multipart/form-data")
     assert r.get_json() == {"texte": "résume mes mails"}
     assert appels["url"].endswith("/speech-to-text") and appels["data"]["model_id"] == "scribe_v1"
+
+
+# --- Nouvelles fonctions : réglages, accès, réponses, désabonnement, mémoire --------------
+
+@pytest.fixture
+def dossier(tmp_path, monkeypatch, sans_cle):
+    monkeypatch.setenv("ASSISTANT_DOSSIER", str(tmp_path))
+    for cle in ("ICLOUD_ADRESSE", "ICLOUD_MOT_DE_PASSE_APP", "GOOGLE_AGENDA_ICS", "ASSISTANT_CODE", "ELEVENLABS_API_KEY"):
+        monkeypatch.delenv(cle, raising=False)
+    monkeypatch.setattr("assistant_vocal.config.trousseau", lambda: None)
+    return tmp_path
+
+
+def test_reglages_enregistres_et_recharges(dossier):
+    from assistant_vocal.config import charger_config
+    cfg = charger_config()
+    c = creer_app(cfg, source=Demo()).test_client()
+    r = c.post("/api/reglages", json={"valeurs": {"ASSISTANT_NOM": "Friday", "ELEVENLABS_API_KEY": "sk-test",
+                                                   "INCONNU": "x"}, "prioritaires": ["Claire@X.fr", "pas-une-adresse"]})
+    assert r.get_json()["rangement"] == "fichier"
+    env = (dossier / ".env").read_text()
+    assert "ASSISTANT_NOM=Friday" in env and "ELEVENLABS_API_KEY=sk-test" in env and "INCONNU" not in env
+    assert oct((dossier / ".env").stat().st_mode)[-3:] == "600"
+    g = c.get("/api/reglages").get_json()
+    assert g["secrets"]["ELEVENLABS_API_KEY"] is True and "sk-test" not in str(g)  # jamais renvoyé en clair
+    assert g["prioritaires"] == ["claire@x.fr"]
+    assert c.get("/api/etat").get_json()["nom"] == "Friday"  # rechargé à chaud
+    c.post("/api/reglages", json={"valeurs": {"ELEVENLABS_API_KEY": ""}})
+    assert "ELEVENLABS_API_KEY" not in (dossier / ".env").read_text()
+
+
+def test_code_acces(dossier):
+    from assistant_vocal.config import charger_config
+    (dossier / ".env").write_text("ASSISTANT_CODE=4321\n")
+    c = creer_app(charger_config(), source=Demo()).test_client()
+    assert c.get("/api/etat").status_code == 401
+    assert c.get("/").status_code == 302
+    assert c.get("/manifest.webmanifest").status_code == 200
+    assert c.post("/api/connexion", json={"code": "0000"}).status_code == 401
+    assert c.post("/api/connexion", json={"code": "4321"}).status_code == 200
+    assert c.get("/api/etat").status_code == 200
+
+
+def test_repondre_desabonner_prioritaire_et_tri_appris(client):
+    client.get("/api/mails")
+    r = client.post("/api/mails/d3/repondre", json={"texte": "Avec plaisir pour samedi 20 h !"})
+    assert r.get_json() == {"ok": True}
+    assert client.source.envoyes[0]["texte"].startswith("Avec plaisir")
+    assert client.post("/api/mails/d3/repondre", json={"texte": " "}).status_code == 400
+    assert client.post("/api/mails/d4/desabonner").get_json() == {"fait": True}
+    assert client.post("/api/mails/d1/desabonner").status_code == 400  # pas de lien de désabonnement
+    assert client.post("/api/mails/d3/prioritaire").get_json() == {"prioritaire": True}
+    d = client.get("/api/mails").get_json()
+    assert d["mails"][0]["id"] == "d3" and d["mails"][0]["prioritaire"]  # prioritaire en tête
+    # Correction du tri : Notifications -> Urgent pour la banque, Jarvis retient
+    r = client.post("/api/mails/trier", json={"elements": [{"id": "d2", "categorie": "Urgent"}]}).get_json()
+    assert r["appris"] == 1
+    d = client.get("/api/mails").get_json()
+    banque = next(m for m in d["mails"] if m["id"] == "d2")
+    assert banque["categorie"] == "Urgent" and "tris précédents" in banque["raison"]
+
+
+def test_brouillon_sans_cle(client):
+    client.get("/api/mails")
+    r = client.post("/api/mails/d3/brouillon", json={"consigne": "dis oui"})
+    assert r.status_code == 502 and "clé API" in r.get_json()["erreur"]

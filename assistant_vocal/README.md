@@ -1,165 +1,128 @@
-# Assistant vocal — mails + agenda, interface HUD
+# Jarvis — assistant vocal pour vos mails et votre agenda
 
-Un assistant personnel façon IA de film de science-fiction, qui tourne sur votre ordinateur :
+Un assistant personnel façon IA de film de science-fiction, qui tourne sur votre ordinateur et
+s'utilise aussi depuis votre téléphone :
 
 - **lit vos mails non lus** (iCloud et/ou Gmail) et vous en fait **un résumé à voix haute** ;
-- **présente votre agenda** (Google Agenda) et peut **ajouter un rendez-vous** à la voix (après confirmation) ;
-- **propose un tri** de chaque mail (Urgent, À répondre, À lire, Notifications, Newsletters, Promotions,
-  Spam probable) et, si vous confirmez, le range dans des libellés Gmail `Assistant/…` et archive ce qui
-  encombre ;
-- se commande **à la voix** (micro du navigateur) ou au clavier, avec une interface animée bleue
-  dont le noyau réagit quand l'assistant parle.
+- **présente votre Google Agenda**, vous **rappelle vos rendez-vous** et peut en **ajouter** ;
+- **trie** votre boîte (Urgent, À répondre, Promotions…) et **apprend de vos corrections** ;
+- **rédige vos réponses** à la voix et ne les envoie qu'après votre accord ;
+- repère les **rendez-vous proposés dans vos mails** et propose de les mettre à l'agenda ;
+- vous **désabonne** des newsletters en une phrase ;
+- met en avant vos **contacts prioritaires** ;
+- **briefing automatique** chaque matin à l'heure choisie ;
+- **mode mains libres** : « Jarvis… » suffit, puis la conversation continue sans répéter son nom.
 
-Rien n'est supprimé : l'assistant ne fait qu'ajouter des libellés, archiver et marquer comme lu,
-et **seulement après votre confirmation**.
+Rien n'est supprimé, et aucun mail ne part sans votre confirmation.
 
-## Essai immédiat (sans compte Google)
+## 1. Installer et lancer (Mac)
 
-```bash
-pip install -r assistant_vocal/requirements.txt
-python -m assistant_vocal --demo
-```
+1. Téléchargez ce dossier sur votre Mac.
+2. Double-cliquez sur **`assistant_vocal/demarrage_auto_mac.command`**. La première fois, il installe
+   tout (une minute), puis Jarvis tourne en arrière-plan et **redémarre tout seul avec le Mac**.
+   La page s'ouvre sur `http://127.0.0.1:5050`.
+   - Si macOS bloque le fichier : clic droit → *Ouvrir*.
+   - Pour arrêter : `arreter_demarrage_auto_mac.command`. Pour un lancement ponctuel :
+     `lancer_mac.command` (Windows : `lancer_windows.bat`).
+3. Sans réglages, Jarvis tourne en **mode démo** (mails et rendez-vous fictifs).
 
-La page s'ouvre sur `http://127.0.0.1:5050` avec des mails et rendez-vous fictifs.
-Sans clé ElevenLabs, le micro demande **Chrome ou Edge** (voir plus bas pour Firefox et Safari).
+## 2. Brancher vos comptes : ⚙ Réglages → « Comptes et clés »
 
-## Installation complète
+Tout se fait dans la page, avec un bouton **Tester** pour chaque service. Les clés et mots de passe
+sont rangés dans le **Trousseau du Mac** (jamais réaffichés dans la page).
 
-### 1. Clé Claude (le « cerveau »)
+| Réglage | Où le trouver | À quoi il sert |
+|---|---|---|
+| **Clé Claude** | <https://console.anthropic.com> → API Keys | résumés, tri, réponses (sans elle : tri par mots-clés) |
+| **Clé ElevenLabs** (gratuit) | <https://elevenlabs.io> → Profil → API Keys | voix « Jarvis » **et micro sur téléphone** |
+| **Adresse + mot de passe pour app iCloud** | <https://account.apple.com> → Connexion et sécurité → Mots de passe pour app | lire, trier et répondre à vos mails iCloud |
+| **Lien secret iCal** (Google Agenda, lecture seule) | calendar.google.com → ⚙ → votre agenda → Intégrer l'agenda → « Adresse secrète au format iCal » | lire l'agenda en 2 minutes |
+| **Fichier d'identifiants Google** (accès complet) | voir ci-dessous | lire **et ajouter** des rendez-vous ; Gmail |
+| **Contacts prioritaires** | une adresse par ligne (ou ★ sur un mail) | toujours en tête du résumé |
+| **Code d'accès** | à choisir | obligatoire pour utiliser Jarvis depuis le téléphone |
 
-Créez une clé sur <https://console.anthropic.com>, puis créez un fichier `.env` dans le dossier
-`~/.assistant_vocal/` (ou dans le dossier d'où vous lancez le programme) :
+Pour iCloud, utilisez un **mot de passe pour app** (`abcd-efgh-ijkl-mnop`), pas votre mot de passe
+Apple. iCloud n'ayant pas de libellés, le tri **déplace** les mails à archiver dans des dossiers
+`Assistant/Promotions`, `Assistant/Newsletters`… (visibles dans Mail) ; les urgents reçoivent un
+drapeau.
 
-```
-ANTHROPIC_API_KEY=sk-ant-...
-```
+**Accès Google complet** (environ 10 minutes, une seule fois) : sur <https://console.cloud.google.com>,
+créez un projet, activez **Google Calendar API** (et **Gmail API** si vous voulez Gmail), configurez
+l'écran de consentement (« Externe », votre adresse en utilisateur test), puis *Identifiants → ID client
+OAuth → Application de bureau* et téléchargez le JSON. Déposez-le dans les Réglages et cliquez sur
+**Autoriser Google** : la page d'autorisation s'ouvre sur le Mac.
 
-Sans clé, l'assistant fonctionne quand même mais trie par mots-clés et lit les objets au lieu de
-vrais résumés.
+## 3. Utiliser Jarvis sur le téléphone
 
-### 2. Vos mails iCloud (5 minutes)
+Le micro d'un téléphone ne fonctionne que sur une adresse **https**. La solution la plus simple et
+privée est **Tailscale** (gratuit) : un réseau personnel entre vos appareils, qui fonctionne aussi
+hors de chez vous.
 
-1. Allez sur <https://account.apple.com> → *Connexion et sécurité* → **Mots de passe pour app** → créez-en
-   un nommé « Jarvis ». Apple affiche un code du type `abcd-efgh-ijkl-mnop`.
-2. Ajoutez dans `~/.assistant_vocal/.env` :
+1. Dans Jarvis (⚙ Réglages) : choisissez un **code d'accès** et ajoutez votre **clé ElevenLabs**
+   (c'est elle qui fait marcher le micro sur iPhone).
+2. Installez **Tailscale** sur le Mac et sur le téléphone (<https://tailscale.com/download>), et
+   connectez-vous avec le même compte sur les deux.
+3. Sur le Mac, double-cliquez sur **`assistant_vocal/telephone_mac.command`**. Il affiche une adresse
+   du type `https://mon-mac.tailnet-xxxx.ts.net` (la première fois, Tailscale peut demander
+   d'activer HTTPS : suivez son lien).
+4. Sur le téléphone, ouvrez cette adresse dans Safari, entrez votre code, puis
+   *Partager → Sur l'écran d'accueil* : Jarvis devient une icône comme une app.
 
-```
-ICLOUD_ADRESSE=votre.nom@icloud.com
-ICLOUD_MOT_DE_PASSE_APP=abcd-efgh-ijkl-mnop
-```
+Le Mac doit rester allumé (Jarvis tourne dessus). Touchez le noyau pour parler : la phrase est
+enregistrée, s'arrête toute seule au silence, puis est transcrite.
 
-N'utilisez pas votre mot de passe Apple habituel : il serait refusé. Comme iCloud n'a pas de
-libellés, le tri **déplace** les mails à archiver dans des dossiers `Assistant/Promotions`,
-`Assistant/Newsletters`… (visibles dans Mail) ; les mails gardés restent dans la boîte de réception,
-et les urgents reçoivent un drapeau.
+## Parler à Jarvis
 
-### 3. Votre Google Agenda
-
-**Le plus simple (lecture seule, 2 minutes)** : sur <https://calendar.google.com> (ordinateur),
-⚙ *Paramètres* → cliquez sur votre agenda à gauche → *Intégrer l'agenda* → copiez
-**« Adresse secrète au format iCal »**, puis ajoutez :
-
-```
-GOOGLE_AGENDA_ICS=https://calendar.google.com/calendar/ical/.../basic.ics
-```
-
-Jarvis lit alors votre semaine, mais ne peut pas ajouter de rendez-vous. Ne partagez jamais cette
-adresse : elle donne accès à votre agenda.
-
-**Accès complet (lecture et ajout de rendez-vous, environ 10 minutes)** :
-
-1. Allez sur <https://console.cloud.google.com>, créez un projet.
-2. *API et services → Bibliothèque* : activez **Google Calendar API** (et **Gmail API** si vous voulez
-   aussi Gmail).
-3. *Écran de consentement OAuth* : type « Externe », ajoutez votre adresse comme **utilisateur test**.
-4. *Identifiants → Créer → ID client OAuth → Application de bureau*, puis téléchargez le JSON.
-5. Enregistrez-le sous `~/.assistant_vocal/credentials.json`. Si vous ne voulez pas Gmail, ajoutez
-   `ASSISTANT_GMAIL=0` dans le `.env`.
-
-Au premier lancement, une page Google s'ouvre pour autoriser l'accès ; le jeton est ensuite gardé dans
-`~/.assistant_vocal/token.json` (sur votre machine uniquement).
-
-### 4. Lancer
-
-Double-cliquez sur `assistant_vocal/lancer_mac.command` (Mac) ou `assistant_vocal/lancer_windows.bat`
-(Windows) : la première fois, il installe tout ce qu'il faut, puis ouvre Jarvis dans le navigateur.
-Ou, dans un terminal :
-
-```bash
-python -m assistant_vocal
-```
-
-## Parler à l'assistant
-
-Cliquez sur le noyau, sur le micro, ou **maintenez la barre Espace** pendant que vous parlez.
-Dans ⚙ *Réglages*, l'option **Écoute permanente** le fait réagir dès que vous dites son nom
-(« Jarvis, quoi de neuf ? »).
+Touchez le noyau ou le micro (sur ordinateur : maintenez **Espace**). En **mode mains libres**
+(⚙ Réglages), dites « Jarvis, … » ; après sa réponse, vous avez quelques secondes pour enchaîner
+sans redire son nom ; « merci Jarvis » termine la conversation. En mains libres avec la transcription
+ElevenLabs, chaque phrase captée consomme des crédits.
 
 | Vous dites | Il fait |
 |---|---|
-| « résume mes mails » | analyse les non-lus et fait le briefing oral |
-| « lis le mail suivant », « lis le premier mail », « lis le mail urgent », « relis-le en entier » | lecture d'un mail |
-| « trie mes mails » puis « oui » | propose puis applique le tri |
-| « mon agenda », « qu'est-ce que j'ai demain ? » | briefing de l'agenda |
-| « ajoute un rendez-vous chez le dentiste jeudi à 15 h » puis « oui » | crée l'événement |
-| « briefing » / « quoi de neuf » | mails + agenda d'un coup |
-| « stop » ou Échap | coupe la parole |
-| toute autre question (« qui attend une réponse de ma part ? ») | réponse libre de Claude |
+| « briefing » / « quoi de neuf » | mails + agenda |
+| « résume mes mails » | analyse les non-lus et fait le point |
+| « lis le mail suivant / urgent », « relis-le en entier » | lecture d'un mail |
+| « réponds à Claire que c'est d'accord pour vendredi » | rédige la réponse, vous la lit, l'envoie sur « envoie » |
+| « trie mes mails » puis « oui » | propose puis applique le tri (vos corrections sont retenues) |
+| « désabonne-moi de la boutique » puis « oui » | désabonnement |
+| « mon agenda », « qu'est-ce que j'ai demain ? » | point sur l'agenda |
+| « ajoute un rendez-vous chez le dentiste jeudi à 15 h » puis « oui » | crée l'événement (accès Google complet) |
+| « stop » | coupe la parole |
 
-Dans la liste, vous pouvez changer la catégorie d'un mail ou cocher/décocher « archiver » avant
-d'appliquer le tri.
+Sur chaque mail : **★** (contact prioritaire), **Répondre**, **+ Agenda** (si un rendez-vous y est
+proposé), **Se désabonner** (newsletters).
 
-## La voix « Jarvis » et le micro (ElevenLabs, gratuit)
+Dans ⚙ Réglages, **Rendez-vous quotidiens** : heure du briefing automatique et rappel vocal
+15 minutes avant chaque rendez-vous (tant que la page est ouverte).
 
-Avec une clé ElevenLabs, Jarvis gagne :
+## La voix
 
-- une **voix grave et posée** (par défaut « Daniel », voix standard d'ElevenLabs) passée dans un
-  **filtre « IA »** (présence, doublage court, léger écho de cockpit) — désactivable dans ⚙ ;
-- un **micro qui marche dans tous les navigateurs**, Firefox et Safari compris : la phrase est
-  enregistrée puis transcrite par ElevenLabs (cliquez, parlez, il s'arrête tout seul au silence).
-
-1. Créez un compte gratuit sur <https://elevenlabs.io> (environ 10 000 caractères de voix par mois,
-   soit une dizaine de minutes de parole).
-2. *Profil → API Keys* : créez une clé.
-3. Ajoutez-la dans `~/.assistant_vocal/.env` :
-
-```
-ELEVENLABS_API_KEY=...
-# Facultatif : une autre voix de la bibliothèque ElevenLabs (bouton « ID » sur la voix)
-# ELEVENLABS_VOICE_ID=...
-```
-
-Quand le quota du mois est épuisé, Jarvis repasse automatiquement sur la voix de l'ordinateur.
-Choisissez une voix de la bibliothèque, pas un clone de la voix d'un acteur réel.
-
-Sans ElevenLabs, c'est la synthèse vocale du navigateur (choix de la voix et de la hauteur dans ⚙),
-et le micro ne fonctionne que dans Chrome, Edge ou Safari avec la Dictée activée.
-
-## Réglages (`.env`)
-
-| Variable | Rôle | Défaut |
-|---|---|---|
-| `ASSISTANT_NOM` | nom de l'assistant (et mot d'éveil) | `Jarvis` |
-| `ASSISTANT_UTILISATEUR` | comment il vous appelle | `Monsieur` |
-| `ASSISTANT_MAX_MAILS` | nombre de non-lus analysés | `15` |
-| `ASSISTANT_JOURS_AGENDA` | jours d'agenda affichés | `7` |
-| `ASSISTANT_MODELE` | modèle Claude | `claude-opus-5-5` |
-| `ASSISTANT_PORT` | port local | `5050` |
-| `ASSISTANT_DOSSIER` | dossier des identifiants | `~/.assistant_vocal` |
-| `ASSISTANT_DEMO` | `1` pour forcer les données fictives | auto |
+Avec ElevenLabs, voix grave et posée (« Daniel » par défaut, ou l'identifiant d'une autre voix de leur
+bibliothèque) passée dans un filtre « IA » désactivable. Le compte gratuit donne environ 10 minutes
+de parole par mois ; ensuite Jarvis repasse sur la voix de l'appareil. Choisissez une voix de la
+bibliothèque, pas un clone de la voix d'un acteur réel.
 
 ## Confidentialité
 
-- Le serveur n'écoute que sur `127.0.0.1` : il n'est pas joignable depuis le réseau.
-- Le texte des mails non lus (4 000 caractères max par mail) est envoyé à l'API Claude pour être
-  résumé ; la reconnaissance vocale de Chrome/Edge passe par les serveurs de Google/Microsoft.
-- Les mails sont traités comme des données : l'assistant a pour consigne de ne jamais suivre les
-  instructions qu'ils contiennent et de classer les tentatives de manipulation en « Spam probable ».
+- Jarvis tourne sur votre ordinateur ; il n'écoute que sur `127.0.0.1`. L'accès téléphone passe par
+  votre réseau privé Tailscale et demande le code d'accès.
+- Le texte des mails non lus est envoyé à Claude pour être résumé ; les phrases que vous dites sont
+  envoyées à ElevenLabs pour être transcrites.
+- Les mails sont traités comme des données : Jarvis a pour consigne de ne jamais suivre les
+  instructions qu'ils contiennent, et toute action (envoi, tri, désabonnement, rendez-vous) attend
+  votre confirmation.
 
-## Version claude.ai (sans installation)
+## Pour les curieux
 
-`jarvis_claude_ai.html` est la même interface, publiée comme page sur claude.ai : elle lit votre
-boîte via le connecteur Gmail de claude.ai, utilise Claude pour les résumés et le tri, la voix et
-la dictée de claude.ai, et lit et complète votre Google Agenda via son connecteur. Aucune clé ni
-serveur à installer. La voix par défaut est la meilleure voix masculine française gratuite de
-l'appareil (idéalement « Henri » dans Microsoft Edge), réglée plus grave et posée.
+Réglages avancés possibles dans `~/.assistant_vocal/.env` : `ASSISTANT_MAX_MAILS` (15),
+`ASSISTANT_JOURS_AGENDA` (7), `ASSISTANT_MODELE` (`claude-opus-5-5`), `ASSISTANT_PORT` (5050),
+`ASSISTANT_DEMO=1`. Mémoire du tri et contacts prioritaires : `~/.assistant_vocal/memoire.json`.
+
+Tests : `python -m pytest`.
+
+### Version claude.ai (sans installation)
+
+`jarvis_claude_ai.html` est une variante publiée sur claude.ai, qui passe par les connecteurs Gmail et
+Google Agenda de claude.ai. Elle ne lit pas iCloud et son micro ne fonctionne que dans Chrome ou Edge
+sur ordinateur.

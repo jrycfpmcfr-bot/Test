@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Jarvis</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/static/icone-180.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#02070d">
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+    .boite { max-width: 360px; margin: 18vh auto 0; padding: 1.5rem 16px; display: flex; flex-direction: column; gap: 1rem; text-align: center; }
+    .boite img { width: 96px; height: 96px; margin: 0 auto; border-radius: 22px; }
+    .boite input { font: inherit; font-size: 1.4rem; text-align: center; letter-spacing: .3em; background: rgba(3,20,32,.8); color: var(--texte); border: 1px solid var(--cyan-doux); padding: .6em; }
+    .boite p { color: var(--texte-doux); margin: 0; min-height: 1.4em; }
+  </style>
+</head>
+<body>
+  <form class="boite" id="f">
+    <img src="/static/icone-180.png" alt="">
+    <label for="code">Code d'accès</label>
+    <input id="code" type="password" inputmode="numeric" autocomplete="current-password" autofocus>
+    <button class="principal" type="submit">Entrer</button>
+    <p id="msg"></p>
+  </form>
+  <script>
+    document.getElementById("f").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById("msg"); msg.textContent = "Vérification…";
+      const r = await fetch("/api/connexion", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: document.getElementById("code").value }) });
+      if (r.ok) location.href = "/"; else msg.textContent = "Code incorrect.";
+    });
+  </script>
+</body>
+</html>

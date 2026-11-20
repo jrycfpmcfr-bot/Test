@@ -2,8 +2,14 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Assistant HUD</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Jarvis</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/static/icone-180.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#02070d">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/style.css">
@@ -59,10 +65,11 @@
       </div>
       <p class="sous-titre" id="sous-titre" aria-live="polite"></p>
       <p class="entendu" id="entendu"></p>
-        <div class="confirmation" id="confirmation" hidden>
-          <p id="texte-confirmation"></p>
-          <div><button class="principal" id="btn-oui">Confirmer</button><button id="btn-non">Annuler</button></div>
-        </div>
+      <div class="confirmation" id="confirmation" hidden>
+        <p id="texte-confirmation"></p>
+        <textarea id="brouillon" rows="6" aria-label="Réponse à envoyer" hidden></textarea>
+        <div><button class="principal" id="btn-oui">Confirmer</button><button id="btn-non">Annuler</button></div>
+      </div>
 
       <div class="commandes">
         <button class="puce" data-cmd="résume mes mails">Mes mails</button>
@@ -92,7 +99,9 @@
 
 
   <aside class="reglages" id="reglages" hidden>
-    <h2>Réglages</h2>
+    <div class="entete-reglages"><h2>Réglages</h2><button class="principal" id="r-fermer">Fermer</button></div>
+
+    <h3>Voix</h3>
     <label>Voix
       <select id="r-voix"></select>
     </label>
@@ -100,10 +109,55 @@
     <label>Débit <input type="range" id="r-debit" min="0.7" max="1.4" step="0.05"></label>
     <label class="case"><input type="checkbox" id="r-premium"> Voix ElevenLabs</label>
     <label class="case"><input type="checkbox" id="r-effet"> Filtre « IA » sur la voix ElevenLabs</label>
-    <label class="case"><input type="checkbox" id="r-ecoute"> Écoute permanente : répondre quand j'entends mon nom</label>
+    <label class="case"><input type="checkbox" id="r-ecoute"> Mains libres : répondre quand j'entends mon nom, puis continuer la conversation</label>
     <button id="r-test">Tester la voix</button>
-    <button class="principal" id="r-fermer">Fermer</button>
     <p class="note" id="r-note"></p>
+
+    <h3>Rendez-vous quotidiens</h3>
+    <label>Briefing automatique à <input type="time" id="r-briefing"></label>
+    <label class="case"><input type="checkbox" id="r-rappels"> Rappel vocal 15 minutes avant chaque rendez-vous</label>
+    <p class="note">Fonctionne tant que la page Jarvis est ouverte (écran allumé sur téléphone).</p>
+
+    <section id="r-comptes">
+      <h3>Comptes et clés</h3>
+      <p class="note" id="r-rangement"></p>
+      <label>Nom de l'assistant <input id="c-ASSISTANT_NOM" autocomplete="off"></label>
+      <label>Il vous appelle <input id="c-ASSISTANT_UTILISATEUR" autocomplete="off"></label>
+
+      <h4>Claude (résumés, tri, réponses)</h4>
+      <label>Clé API Anthropic <input id="c-ANTHROPIC_API_KEY" type="password" autocomplete="off"></label>
+      <button type="button" class="tester" data-service="claude">Tester</button>
+
+      <h4>ElevenLabs (voix Jarvis et micro)</h4>
+      <label>Clé API <input id="c-ELEVENLABS_API_KEY" type="password" autocomplete="off"></label>
+      <label>Identifiant de voix (vide = « Daniel ») <input id="c-ELEVENLABS_VOICE_ID" autocomplete="off"></label>
+      <button type="button" class="tester" data-service="elevenlabs">Tester</button>
+
+      <h4>Mails iCloud</h4>
+      <label>Adresse iCloud <input id="c-ICLOUD_ADRESSE" type="email" autocomplete="off"></label>
+      <label>Mot de passe pour app <input id="c-ICLOUD_MOT_DE_PASSE_APP" type="password" autocomplete="off" placeholder="abcd-efgh-ijkl-mnop"></label>
+      <button type="button" class="tester" data-service="icloud">Tester</button>
+
+      <h4>Google Agenda</h4>
+      <label>Lien secret iCal (lecture seule) <input id="c-GOOGLE_AGENDA_ICS" type="password" autocomplete="off"></label>
+      <label>Ou accès complet : fichier d'identifiants Google <input id="c-google-fichier" type="file" accept=".json,application/json"></label>
+      <label class="case"><input type="checkbox" id="c-ASSISTANT_GMAIL"> Lire aussi Gmail avec l'accès complet</label>
+      <div class="ligne-boutons">
+        <button type="button" class="tester" data-service="google">Autoriser Google</button>
+        <button type="button" class="tester" data-service="agenda">Tester l'agenda</button>
+      </div>
+
+      <h4>Contacts prioritaires</h4>
+      <label>Une adresse par ligne <textarea id="c-prioritaires" rows="3"></textarea></label>
+
+      <h4>Accès depuis le téléphone</h4>
+      <label>Code d'accès <input id="c-ASSISTANT_CODE" type="password" inputmode="numeric" autocomplete="new-password"></label>
+      <p class="note">Indispensable avant d'ouvrir Jarvis au téléphone (voir la notice, partie « Téléphone »).</p>
+
+      <button type="button" class="principal" id="c-enregistrer">Enregistrer</button>
+      <p class="note">Les champs secrets laissés vides gardent leur valeur actuelle.</p>
+      <p class="note" id="c-resultat" aria-live="polite"></p>
+    </section>
   </aside>
 
   <div class="bandeau" id="bandeau" hidden></div>

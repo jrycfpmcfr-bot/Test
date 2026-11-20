@@ -27,8 +27,12 @@ SCHEMA_TRI = {
                     "categorie": {"type": "string", "enum": CATEGORIES},
                     "action": {"type": "string", "enum": ACTIONS},
                     "raison": {"type": "string"},
+                    "evenement_titre": {"type": "string"},
+                    "evenement_debut": {"type": "string"},
+                    "evenement_fin": {"type": "string"},
                 },
-                "required": ["id", "resume", "categorie", "action", "raison"],
+                "required": ["id", "resume", "categorie", "action", "raison",
+                             "evenement_titre", "evenement_debut", "evenement_fin"],
                 "additionalProperties": False,
             },
         },
@@ -41,12 +45,15 @@ SCHEMA_REPONSE = {
     "type": "object",
     "properties": {
         "reponse_orale": {"type": "string"},
-        "action": {"type": "string", "enum": ["aucune", "creer_evenement"]},
+        "action": {"type": "string", "enum": ["aucune", "creer_evenement", "repondre_mail", "desabonner"]},
         "evenement_titre": {"type": "string"},
         "evenement_debut": {"type": "string"},
         "evenement_fin": {"type": "string"},
+        "mail_id": {"type": "string"},
+        "texte_mail": {"type": "string"},
     },
-    "required": ["reponse_orale", "action", "evenement_titre", "evenement_debut", "evenement_fin"],
+    "required": ["reponse_orale", "action", "evenement_titre", "evenement_debut", "evenement_fin",
+                 "mail_id", "texte_mail"],
     "additionalProperties": False,
 }
 
@@ -140,20 +147,23 @@ class IA:
             raise ErreurIA("Réponse du modèle illisible.") from e
 
     # --- Fonctions publiques ----------------------------------------------
-    def trier_mails(self, mails: list[dict]) -> dict:
+    def trier_mails(self, mails: list[dict], indices: str = "") -> dict:
         if not mails:
             return {"resume_oral": f"Aucun nouveau mail, {self.cfg.utilisateur}. Votre boîte est calme.",
                     "mails": []}
         if not self.cfg.ia_active:
             return tri_sans_ia(mails, self.cfg.utilisateur)
         consigne = (
-            f"{_bloc_mails(mails)}\n\n"
+            f"{_bloc_mails(mails)}\n\n" + (f"{indices}\n\n" if indices else "") +
             "Voici mes mails non lus. Pour chacun : un résumé d'une phrase, une catégorie, une action "
             "conseillée (« archiver » seulement pour ce qui n'a pas besoin de rester dans la boîte de "
             "réception : promotions, newsletters, notifications sans suite, spam) et la raison en "
             "quelques mots. Puis rédige « resume_oral » : un briefing parlé de 30 à 60 secondes qui "
             "commence par le nombre de mails, insiste sur ce qui est urgent ou attend une réponse, "
-            "regroupe le reste (« trois newsletters et deux promotions ») et termine en proposant le tri."
+            "regroupe le reste (« trois newsletters et deux promotions ») et termine en proposant le tri. "
+            "Si un mail propose ou confirme un rendez-vous, une réunion ou un événement daté, remplis "
+            "evenement_titre, evenement_debut et evenement_fin (heure locale, format AAAA-MM-JJTHH:MM:SS, "
+            "1 h par défaut) et mentionne-le dans le briefing ; sinon laisse ces trois champs vides."
         )
         resultat = self._appeler(consigne, SCHEMA_TRI, effort="medium")
         ids = {m["id"] for m in mails}
@@ -185,13 +195,30 @@ class IA:
             f"{_bloc_mails(mails)}\n{_bloc_agenda(evenements)}\n\n"
             + (f"Conversation récente :\n{echanges}\n\n" if echanges else "")
             + f"Ma demande : {question}\n\n"
-            "Réponds oralement et brièvement. Si je te demande d'ajouter un rendez-vous ou un "
-            "événement, mets « action » à « creer_evenement » et remplis evenement_titre, "
-            "evenement_debut et evenement_fin au format ISO 8601 avec le décalage horaire "
-            "(durée d'une heure si je ne la précise pas) ; dans ta réponse orale, demande-moi de "
-            "confirmer. Sinon « action » vaut « aucune » et les champs evenement_* sont vides."
+            "Réponds oralement et brièvement. Actions possibles (toujours soumises à ma confirmation) :\n"
+            "- ajouter un rendez-vous : action « creer_evenement », remplis evenement_titre, evenement_debut "
+            "et evenement_fin au format ISO 8601 avec le décalage horaire (1 h par défaut) ;\n"
+            "- répondre à un mail : action « repondre_mail », mail_id = l'id du mail visé, texte_mail = la "
+            "réponse complète rédigée en mon nom (formule d'appel, message, formule de politesse, sans "
+            "signature inventée), dans le ton de l'expéditeur ; ta réponse orale la résume et demande si "
+            "tu peux l'envoyer ;\n"
+            "- se désabonner d'une liste : action « desabonner », mail_id = le mail de la liste.\n"
+            "Sinon « action » vaut « aucune ». Les champs inutilisés restent vides."
         )
         return self._appeler(consigne, SCHEMA_REPONSE, effort="low")
+
+
+    def rediger_reponse(self, mail: dict, consigne: str) -> str:
+        if not self.cfg.ia_active:
+            raise ErreurIA("La rédaction des réponses demande une clé API Anthropic.")
+        schema = {"type": "object", "properties": {"texte_mail": {"type": "string"}},
+                  "required": ["texte_mail"], "additionalProperties": False}
+        consigne_complete = (
+            f"{_bloc_mails([mail])}\n\nRédige ma réponse à ce mail, en mon nom, d'après cette consigne : "
+            f"« {consigne} ». Ton adapté à l'expéditeur, formule d'appel et de politesse, sans signature "
+            "inventée, sans reprendre le mail d'origine."
+        )
+        return self._appeler(consigne_complete, schema, effort="low")["texte_mail"]
 
 
 # --- Repli sans clé API : tri par mots-clés --------------------------------
@@ -217,7 +244,8 @@ def tri_sans_ia(mails: list[dict], utilisateur: str) -> dict:
         categorie = next((c for c, motif in _REGLES if re.search(motif, texte)), "À lire")
         action = "archiver" if categorie in ("Promotions", "Newsletters", "Spam probable") else "garder"
         resultats.append({"id": m["id"], "resume": m.get("extrait") or m["objet"], "categorie": categorie,
-                          "action": action, "raison": "tri par mots-clés"})
+                          "action": action, "raison": "tri par mots-clés",
+                          "evenement_titre": "", "evenement_debut": "", "evenement_fin": ""})
     phrases = [f"{utilisateur}, vous avez {len(mails)} mail{'s' if len(mails) > 1 else ''} non lu{'s' if len(mails) > 1 else ''}."]
     for m, r in zip(mails[:5], resultats):
         phrases.append(f"{_nom_expediteur(m['de'])} : {m['objet']}.")

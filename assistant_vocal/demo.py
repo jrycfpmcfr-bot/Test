@@ -28,7 +28,8 @@ class Demo:
              "corps": "Salut ! On se fait un resto samedi soir avec Julie ? Dis-moi si 20h te va."},
             {"id": "d4", "de": "Boutique Mode <news@boutique-mode.example>", "objet": "-30 % sur toute la collection",
              "date": _h(-1, 10), "extrait": "Profitez de nos offres exclusives ce week-end.",
-             "corps": "Profitez de -30 % sur toute la collection ce week-end seulement."},
+             "corps": "Profitez de -30 % sur toute la collection ce week-end seulement.",
+             "desabonnement": {"https": "https://boutique-mode.example/desabo", "mailto": None, "un_clic": True}},
             {"id": "d5", "de": "Service Cloud <noreply@service-cloud.example>",
              "objet": "[Test] Nouvelle connexion à votre compte", "date": _h(-1, 9, 15),
              "extrait": "Une nouvelle connexion a été détectée depuis Chrome sur Windows.",
@@ -43,6 +44,8 @@ class Demo:
              "journee_entiere": False, "lieu": "", "description": ""},
         ]
         self.rangements: list[dict] = []
+        self.envoyes: list[dict] = []
+        self.desabonnements: list[str] = []
 
     def mails_non_lus(self, maximum: int) -> list[dict]:
         return [dict(m, thread_id=m["id"], libelles=["INBOX", "UNREAD"]) for m in self.mails[:maximum]]
@@ -54,6 +57,13 @@ class Demo:
 
     def marquer_lu(self, mail_id: str) -> None:
         pass
+
+    def repondre(self, mail: dict, texte: str) -> None:
+        self.envoyes.append({"a": mail["de"], "texte": texte})
+
+    def desabonner(self, mail: dict) -> str:
+        self.desabonnements.append(mail["id"])
+        return "fait"
 
     def evenements(self, jours: int) -> list[dict]:
         return list(self.agenda)
