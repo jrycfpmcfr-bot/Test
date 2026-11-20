@@ -32,6 +32,10 @@ class Config:
     # « Daniel » : voix masculine grave et posée de la bibliothèque standard ElevenLabs.
     elevenlabs_voix: str = "onwK4e9ZLuTAKqWW03F9"
     port: int = 5050
+    icloud_adresse: str = ""
+    icloud_mot_de_passe: str = ""
+    agenda_ics: str = ""
+    gmail_actif: bool = True
 
     @property
     def credentials_google(self) -> Path:
@@ -64,10 +68,13 @@ def charger_config() -> Config:
         elevenlabs_cle=os.environ.get("ELEVENLABS_API_KEY", ""),
         elevenlabs_voix=os.environ.get("ELEVENLABS_VOICE_ID") or "onwK4e9ZLuTAKqWW03F9",
         port=int(os.environ.get("ASSISTANT_PORT", "5050")),
+        icloud_adresse=os.environ.get("ICLOUD_ADRESSE", ""),
+        icloud_mot_de_passe=os.environ.get("ICLOUD_MOT_DE_PASSE_APP", "").replace(" ", ""),
+        agenda_ics=os.environ.get("GOOGLE_AGENDA_ICS", ""),
+        gmail_actif=os.environ.get("ASSISTANT_GMAIL", "1").lower() not in ("0", "false", "non"),
     )
     demo_env = os.environ.get("ASSISTANT_DEMO", "").lower()
-    # Mode démo si demandé, ou si Google n'est pas encore configuré.
-    cfg.demo = demo_env in ("1", "true", "oui") or (
-        demo_env not in ("0", "false", "non") and not cfg.credentials_google.is_file()
-    )
+    # Mode démo si demandé, ou si aucune boîte ni aucun agenda n'est encore configuré.
+    rien = not (cfg.credentials_google.is_file() or (cfg.icloud_adresse and cfg.icloud_mot_de_passe) or cfg.agenda_ics)
+    cfg.demo = demo_env in ("1", "true", "oui") or (demo_env not in ("0", "false", "non") and rien)
     return cfg

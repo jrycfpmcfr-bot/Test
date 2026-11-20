@@ -10,10 +10,9 @@ from email.utils import parsedate_to_datetime
 
 from .config import Config
 
-SCOPES = [
-    "https://www.googleapis.com/auth/gmail.modify",  # lire, étiqueter, archiver (pas de suppression définitive)
-    "https://www.googleapis.com/auth/calendar.events",  # lire et créer des événements
-]
+SCOPE_GMAIL = "https://www.googleapis.com/auth/gmail.modify"  # lire, étiqueter, archiver (pas de suppression)
+SCOPE_AGENDA = "https://www.googleapis.com/auth/calendar.events"  # lire et créer des événements
+SCOPES = [SCOPE_GMAIL, SCOPE_AGENDA]
 PREFIXE_LIBELLE = "Assistant"
 MAX_CORPS = 4000
 
@@ -90,6 +89,10 @@ class Google:
         self._libelles: dict[str, str] = {}
 
     # --- Connexion -------------------------------------------------------
+    @property
+    def scopes(self) -> list[str]:
+        return SCOPES if self.cfg.gmail_actif else [SCOPE_AGENDA]
+
     def _identifiants(self):
         from google.auth.transport.requests import Request
         from google.oauth2.credentials import Credentials
@@ -97,11 +100,11 @@ class Google:
 
         creds = None
         if self.cfg.token_google.is_file():
-            creds = Credentials.from_authorized_user_file(str(self.cfg.token_google), SCOPES)
+            creds = Credentials.from_authorized_user_file(str(self.cfg.token_google), self.scopes)
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
-        if not creds or not creds.valid:
-            flow = InstalledAppFlow.from_client_secrets_file(str(self.cfg.credentials_google), SCOPES)
+        if not creds or not creds.valid or not set(self.scopes) <= set(creds.scopes or []):
+            flow = InstalledAppFlow.from_client_secrets_file(str(self.cfg.credentials_google), self.scopes)
             creds = flow.run_local_server(port=0, prompt="consent")
         self.cfg.token_google.write_text(creds.to_json(), encoding="utf-8")
         self.cfg.token_google.chmod(0o600)
@@ -111,7 +114,8 @@ class Google:
         from googleapiclient.discovery import build
 
         creds = self._identifiants()
-        self._gmail = build("gmail", "v1", credentials=creds, cache_discovery=False)
+        if self.cfg.gmail_actif:
+            self._gmail = build("gmail", "v1", credentials=creds, cache_discovery=False)
         self._agenda = build("calendar", "v3", credentials=creds, cache_discovery=False)
 
     @property

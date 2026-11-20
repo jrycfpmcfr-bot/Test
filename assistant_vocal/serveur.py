@@ -73,9 +73,10 @@ def creer_app(cfg: Config, source=None, ia: IA | None = None) -> Flask:
                 "id": m["id"], "de": m["de"], "objet": m["objet"], "date": m["date"],
                 "extrait": m["extrait"], "resume": a.get("resume", m["extrait"]),
                 "categorie": a.get("categorie", "À lire"), "action": a.get("action", "garder"),
-                "raison": a.get("raison", ""),
+                "raison": a.get("raison", ""), "boite": m.get("boite", ""),
             })
-        return jsonify({"resume_oral": analyse["resume_oral"], "mails": liste})
+        return jsonify({"resume_oral": analyse["resume_oral"], "mails": liste,
+                        "avertissement": " ; ".join(getattr(source, "erreurs", []))})
 
     @app.get("/api/mails/<mail_id>")
     def api_mail(mail_id):

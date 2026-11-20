@@ -2,7 +2,7 @@
 
 Un assistant personnel façon IA de film de science-fiction, qui tourne sur votre ordinateur :
 
-- **lit vos mails non lus** (Gmail) et vous en fait **un résumé à voix haute** ;
+- **lit vos mails non lus** (iCloud et/ou Gmail) et vous en fait **un résumé à voix haute** ;
 - **présente votre agenda** (Google Agenda) et peut **ajouter un rendez-vous** à la voix (après confirmation) ;
 - **propose un tri** de chaque mail (Urgent, À répondre, À lire, Notifications, Newsletters, Promotions,
   Spam probable) et, si vous confirmez, le range dans des libellés Gmail `Assistant/…` et archive ce qui
@@ -37,18 +37,49 @@ ANTHROPIC_API_KEY=sk-ant-...
 Sans clé, l'assistant fonctionne quand même mais trie par mots-clés et lit les objets au lieu de
 vrais résumés.
 
-### 2. Accès à Gmail et Google Agenda (une seule fois)
+### 2. Vos mails iCloud (5 minutes)
+
+1. Allez sur <https://account.apple.com> → *Connexion et sécurité* → **Mots de passe pour app** → créez-en
+   un nommé « Jarvis ». Apple affiche un code du type `abcd-efgh-ijkl-mnop`.
+2. Ajoutez dans `~/.assistant_vocal/.env` :
+
+```
+ICLOUD_ADRESSE=votre.nom@icloud.com
+ICLOUD_MOT_DE_PASSE_APP=abcd-efgh-ijkl-mnop
+```
+
+N'utilisez pas votre mot de passe Apple habituel : il serait refusé. Comme iCloud n'a pas de
+libellés, le tri **déplace** les mails à archiver dans des dossiers `Assistant/Promotions`,
+`Assistant/Newsletters`… (visibles dans Mail) ; les mails gardés restent dans la boîte de réception,
+et les urgents reçoivent un drapeau.
+
+### 3. Votre Google Agenda
+
+**Le plus simple (lecture seule, 2 minutes)** : sur <https://calendar.google.com> (ordinateur),
+⚙ *Paramètres* → cliquez sur votre agenda à gauche → *Intégrer l'agenda* → copiez
+**« Adresse secrète au format iCal »**, puis ajoutez :
+
+```
+GOOGLE_AGENDA_ICS=https://calendar.google.com/calendar/ical/.../basic.ics
+```
+
+Jarvis lit alors votre semaine, mais ne peut pas ajouter de rendez-vous. Ne partagez jamais cette
+adresse : elle donne accès à votre agenda.
+
+**Accès complet (lecture et ajout de rendez-vous, environ 10 minutes)** :
 
 1. Allez sur <https://console.cloud.google.com>, créez un projet.
-2. *API et services → Bibliothèque* : activez **Gmail API** et **Google Calendar API**.
+2. *API et services → Bibliothèque* : activez **Google Calendar API** (et **Gmail API** si vous voulez
+   aussi Gmail).
 3. *Écran de consentement OAuth* : type « Externe », ajoutez votre adresse comme **utilisateur test**.
 4. *Identifiants → Créer → ID client OAuth → Application de bureau*, puis téléchargez le JSON.
-5. Enregistrez-le sous `~/.assistant_vocal/credentials.json`.
+5. Enregistrez-le sous `~/.assistant_vocal/credentials.json`. Si vous ne voulez pas Gmail, ajoutez
+   `ASSISTANT_GMAIL=0` dans le `.env`.
 
 Au premier lancement, une page Google s'ouvre pour autoriser l'accès ; le jeton est ensuite gardé dans
 `~/.assistant_vocal/token.json` (sur votre machine uniquement).
 
-### 3. Lancer
+### 4. Lancer
 
 Double-cliquez sur `assistant_vocal/lancer_mac.command` (Mac) ou `assistant_vocal/lancer_windows.bat`
 (Windows) : la première fois, il installe tout ce qu'il faut, puis ouvre Jarvis dans le navigateur.

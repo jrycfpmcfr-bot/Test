@@ -230,6 +230,12 @@ function initReco() {
       bandeau("Reconnaissance du navigateur indisponible : j'utilise l'écoute ElevenLabs. Recliquez pour parler.");
     } else if (e.error === "not-allowed" || e.error === "service-not-allowed") {
       bandeau("Accès au micro refusé : autorisez-le dans les réglages du navigateur pour ce site.", true);
+    } else if (e.error === "audio-capture") {
+      bandeau("Aucun micro détecté : vérifiez qu'il est branché et choisi dans les réglages du système.", true);
+    } else if (e.error === "network") {
+      bandeau("La reconnaissance vocale du navigateur n'arrive pas à joindre son service. Ajoutez une clé ElevenLabs pour l'écoute.", true);
+    } else if (e.error !== "no-speech" && e.error !== "aborted") {
+      bandeau("Micro : erreur « " + e.error + " ».", true);
     }
   };
 }
@@ -288,8 +294,10 @@ async function enregistrer() {
 }
 
 function demarrerEcoute() {
+  // L'écoute par ElevenLabs marche dans tous les navigateurs : on la préfère, sauf en écoute permanente.
+  const enregistrementPossible = S.ecouteServeur && navigator.mediaDevices && window.MediaRecorder;
+  if (enregistrementPossible && !($("r-ecoute").checked && reco)) return enregistrer();
   if (!reco) {
-    if (S.ecouteServeur && navigator.mediaDevices && window.MediaRecorder) return enregistrer();
     bandeau("Ce navigateur ne sait pas écouter. Ajoutez une clé ElevenLabs (voir la notice) ou utilisez Chrome/Edge. Vous pouvez écrire vos demandes.", true);
     return;
   }
@@ -369,6 +377,7 @@ async function chargerMails(parler) {
   return avecAttente(async () => {
     const d = await api("/api/mails");
     S.mails = d.mails;
+    if (d.avertissement) bandeau(d.avertissement, true);
     afficherMails();
     $("v-mail").classList.add("ok");
     if (parler) await dire(d.resume_oral);
@@ -500,7 +509,8 @@ function afficherMails() {
     const archive = el("input", { type: "checkbox", onchange: (e) => (m.action = e.target.checked ? "archiver" : "garder") });
     archive.checked = m.action === "archiver";
     return el("li", { class: `mail cat-${m.categorie}`, title: m.raison || "" },
-      el("div", { class: "ligne1" }, el("span", {}, nomExpediteur(m.de)), el("span", {}, date ? fmtHeure(date) : "")),
+      el("div", { class: "ligne1" }, el("span", {}, nomExpediteur(m.de)),
+        el("span", {}, (m.boite ? { icloud: "iCloud · ", gmail: "Gmail · " }[m.boite] || "" : "") + (date ? fmtHeure(date) : ""))),
       el("div", { class: "objet" }, m.objet),
       el("p", { class: "resume" }, m.resume),
       el("div", { class: "reglage" }, select, el("label", {}, archive, " archiver"),
