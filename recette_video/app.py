@@ -2,9 +2,6 @@
 
 from __future__ import annotations
 
-import base64
-import os
-import secrets
 import shutil
 import tempfile
 import threading
@@ -12,8 +9,8 @@ import traceback
 import uuid
 from pathlib import Path
 
-from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
-from fastapi.responses import FileResponse, HTMLResponse, Response
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi.responses import FileResponse, HTMLResponse
 
 from . import analyse, extraction
 
@@ -22,32 +19,6 @@ RACINE = Path(tempfile.gettempdir()) / "recette_video"
 RACINE.mkdir(exist_ok=True)
 
 app = FastAPI(title="Recette vidéo")
-
-
-@app.middleware("http")
-async def mot_de_passe(request: Request, appel_suivant):
-    """Si APP_PASSWORD est défini, le navigateur demande un mot de passe (nom d'utilisateur libre)."""
-    attendu = os.environ.get("APP_PASSWORD")
-    if not attendu or request.url.path == "/sante":
-        return await appel_suivant(request)
-    entete = request.headers.get("authorization", "")
-    if entete.lower().startswith("basic "):
-        try:
-            _, _, donne = base64.b64decode(entete[6:]).decode("utf-8").partition(":")
-        except Exception:
-            donne = ""
-        if secrets.compare_digest(donne.encode(), attendu.encode()):
-            return await appel_suivant(request)
-    return Response(
-        "Mot de passe requis.", status_code=401,
-        headers={"WWW-Authenticate": 'Basic realm="Recette Video", charset="UTF-8"'},
-    )
-
-
-@app.get("/sante")
-def sante() -> dict:
-    return {"ok": True}
-
 travaux: dict[str, dict] = {}
 verrou = threading.Lock()
 

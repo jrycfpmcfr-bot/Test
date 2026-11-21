@@ -49,10 +49,6 @@ Instagram et Facebook bloquent souvent la lecture sans être connecté. Trois so
 **Commentaires** : `yt-dlp` lit ceux d'Instagram (avec cookies) mais pas ceux de Facebook.
 Dans ce cas, collez les commentaires utiles dans « Options avancées ».
 
-## Mise en ligne
-
-Voir [`DEPLOIEMENT.md`](DEPLOIEMENT.md) : Docker, Render en un clic, mot de passe (`APP_PASSWORD`).
-
 ## Tests
 
 ```bash
