@@ -113,3 +113,11 @@ motif qui correspond l'emporte.
 pip install pytest reportlab
 python -m pytest
 ```
+
+---
+
+# recette_video — vidéo de cuisine → recette
+
+Application web qui transforme une vidéo de cuisine Facebook / Instagram en recette
+(images de la vidéo + audio transcrit + description + commentaires, analysés par Claude).
+Voir [`recette_video/README.md`](recette_video/README.md).
