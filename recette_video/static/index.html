@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recette Vidéo</title>
+<style>
+  :root {
+    --fond: #faf6f0; --carte: #ffffff; --texte: #2b2420; --doux: #7a6d64;
+    --accent: #c4512b; --accent-fond: #fbe9e1; --bord: #e8dfd5; --ok: #3d7a4a; --erreur: #b3261e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --fond: #1c1916; --carte: #26221e; --texte: #f1ebe4; --doux: #a89c91;
+      --accent: #e7794f; --accent-fond: #3a2a22; --bord: #3a332d; --ok: #7cc28a; --erreur: #f2b8b5;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fond); color: var(--texte);
+         font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 920px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { font-size: 1.9rem; margin: 0 0 4px; }
+  .sous-titre { color: var(--doux); margin: 0 0 24px; }
+  .carte { background: var(--carte); border: 1px solid var(--bord); border-radius: 14px; padding: 20px; margin-bottom: 20px; }
+  label { display: block; font-weight: 600; margin: 14px 0 6px; }
+  label:first-child { margin-top: 0; }
+  .aide { font-weight: 400; color: var(--doux); font-size: .88rem; }
+  input[type=url], textarea { width: 100%; padding: 12px; border: 1px solid var(--bord); border-radius: 10px;
+         background: var(--fond); color: var(--texte); font: inherit; }
+  textarea { min-height: 90px; resize: vertical; }
+  input[type=file] { font: inherit; color: var(--doux); max-width: 100%; }
+  details summary { cursor: pointer; color: var(--accent); margin-top: 14px; }
+  button { background: var(--accent); color: #fff; border: 0; border-radius: 10px; padding: 12px 22px;
+           font: inherit; font-weight: 600; cursor: pointer; margin-top: 18px; }
+  button:disabled { opacity: .5; cursor: wait; }
+  button.secondaire { background: transparent; color: var(--accent); border: 1px solid var(--accent); margin: 0 8px 0 0; padding: 8px 14px; }
+  .ou { text-align: center; color: var(--doux); margin: 10px 0; font-size: .9rem; }
+  ol.progression { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+  ol.progression li { display: flex; gap: 10px; align-items: center; color: var(--doux); }
+  ol.progression li .pastille { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--bord); flex: none;
+         display: grid; place-items: center; font-size: .75rem; }
+  ol.progression li.actif { color: var(--texte); font-weight: 600; }
+  ol.progression li.actif .pastille { border-color: var(--accent); border-top-color: transparent; animation: tourne 1s linear infinite; }
+  ol.progression li.fait .pastille { background: var(--ok); border-color: var(--ok); color: #fff; }
+  @keyframes tourne { to { transform: rotate(360deg); } }
+  .erreur { color: var(--erreur); background: color-mix(in srgb, var(--erreur) 10%, transparent); padding: 12px; border-radius: 10px; }
+  .avert { color: var(--doux); font-size: .9rem; margin: 4px 0; }
+  .recette h2 { font-size: 1.6rem; margin: 0 0 6px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 18px; }
+  .meta span { background: var(--accent-fond); color: var(--texte); padding: 4px 10px; border-radius: 999px; font-size: .88rem; }
+  .colonnes { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: 28px; }
+  @media (max-width: 720px) { .colonnes { grid-template-columns: 1fr; } }
+  h3 { font-size: 1.1rem; margin: 20px 0 10px; border-bottom: 2px solid var(--accent-fond); padding-bottom: 4px; }
+  ul.ingredients { list-style: none; padding: 0; margin: 0; }
+  ul.ingredients li { padding: 6px 0; border-bottom: 1px dashed var(--bord); display: flex; gap: 8px; align-items: baseline; }
+  ul.ingredients input { accent-color: var(--accent); }
+  ul.ingredients li.coche span.nom { text-decoration: line-through; color: var(--doux); }
+  .qte { font-weight: 700; white-space: nowrap; }
+  .estimee { color: var(--doux); font-size: .78rem; font-style: italic; }
+  .src { color: var(--doux); font-size: .75rem; }
+  .portions { display: flex; align-items: center; gap: 8px; font-size: .9rem; color: var(--doux); }
+  .portions button { margin: 0; padding: 2px 10px; }
+  ol.etapes { padding-left: 0; list-style: none; counter-reset: e; margin: 0; }
+  ol.etapes li { counter-increment: e; display: grid; grid-template-columns: 32px 1fr; gap: 10px; margin-bottom: 16px; }
+  ol.etapes li::before { content: counter(e); background: var(--accent); color: #fff; border-radius: 50%;
+         width: 28px; height: 28px; display: grid; place-items: center; font-weight: 700; font-size: .9rem; }
+  ol.etapes img { width: 100%; max-width: 220px; border-radius: 8px; margin-top: 6px; display: block; }
+  .petit { font-size: .85rem; color: var(--doux); }
+  .galerie { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; }
+  .galerie figure { margin: 0; }
+  .galerie img { width: 100%; border-radius: 6px; display: block; }
+  .galerie figcaption { font-size: .75rem; color: var(--doux); text-align: center; }
+  pre { white-space: pre-wrap; background: var(--fond); padding: 12px; border-radius: 8px; font-size: .85rem; max-height: 320px; overflow: auto; }
+  .actions { margin: 6px 0 4px; }
+  .cache { display: none; }
+  @media print {
+    form, #suivi, .actions, details.annexe, .galerie { display: none !important; }
+    .carte { border: 0; padding: 0; }
+    body { background: #fff; color: #000; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>🍳 Recette Vidéo</h1>
+  <p class="sous-titre">Collez le lien d'une vidéo de cuisine Facebook ou Instagram : l'application regarde les images, écoute l'audio, lit la description et les commentaires, puis vous écrit la recette.</p>
+
+  <form id="formulaire" class="carte">
+    <label for="url">Lien de la vidéo</label>
+    <input type="url" id="url" name="url" placeholder="https://www.instagram.com/reel/…  ou  https://www.facebook.com/…">
+    <div class="ou">— ou —</div>
+    <label for="video">Fichier vidéo <span class="aide">(si le lien ne fonctionne pas)</span></label>
+    <input type="file" id="video" name="video" accept="video/*">
+
+    <details>
+      <summary>Options avancées</summary>
+      <label for="commentaires">Commentaires <span class="aide">— collez-les ici si l'application ne peut pas les lire (un par ligne, « auteur: texte »)</span></label>
+      <textarea id="commentaires" name="commentaires" placeholder="chef_marie: 200 g de farine et 3 œufs !&#10;paul: j'ai remplacé le beurre par de l'huile d'olive, top"></textarea>
+      <label for="cookies">Fichier cookies.txt <span class="aide">— nécessaire pour la plupart des vidéos Instagram et des vidéos Facebook non publiques. Exportez-le depuis votre navigateur connecté (extension « Get cookies.txt »). Il est supprimé après l'analyse.</span></label>
+      <input type="file" id="cookies" name="cookies" accept=".txt">
+    </details>
+
+    <button type="submit" id="lancer">Créer la recette</button>
+  </form>
+
+  <section id="suivi" class="carte cache">
+    <ol class="progression" id="progression"></ol>
+    <div id="avertissements"></div>
+    <div id="erreur"></div>
+  </section>
+
+  <section id="resultat" class="carte recette cache"></section>
+</main>
+
+<script>
+const NOMS_ETAPES = {
+  telechargement: "Téléchargement de la vidéo et de la publication",
+  images: "Extraction des images de la vidéo",
+  audio: "Écoute et transcription de l'audio",
+  commentaires: "Lecture des commentaires",
+  recette: "Rédaction de la recette par Claude",
+};
+const $ = (s) => document.querySelector(s);
+const esc = (t) => String(t ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let analyseId = null, recetteCourante = null, facteur = 1;
+
+$("#formulaire").addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+  const donnees = new FormData(ev.target);
+  if (!donnees.get("url") && !$("#video").files.length) { alert("Indiquez un lien ou choisissez une vidéo."); return; }
+  $("#lancer").disabled = true; facteur = 1;
+  $("#resultat").classList.add("cache");
+  $("#erreur").innerHTML = ""; $("#avertissements").innerHTML = "";
+  $("#suivi").classList.remove("cache");
+  afficherProgression({ etape: "telechargement", etapes: Object.keys(NOMS_ETAPES) });
+  try {
+    const r = await fetch("/api/analyses", { method: "POST", body: donnees });
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.detail || "Erreur");
+    analyseId = j.id;
+    suivre();
+  } catch (e) { montrerErreur(e.message); }
+});
+
+function afficherProgression(t) {
+  const idx = t.etape === "fini" ? 99 : t.etapes.indexOf(t.etape);
+  $("#progression").innerHTML = t.etapes.map((e, i) => {
+    const cls = i < idx ? "fait" : i === idx && t.etat !== "erreur" ? "actif" : "";
+    return `<li class="${cls}"><span class="pastille">${i < idx ? "✓" : ""}</span>${NOMS_ETAPES[e]}</li>`;
+  }).join("");
+  $("#avertissements").innerHTML = (t.avertissements || []).map((a) => `<p class="avert">⚠️ ${esc(a)}</p>`).join("");
+}
+
+function montrerErreur(msg) {
+  $("#erreur").innerHTML = `<p class="erreur">${esc(msg)}</p>`;
+  $("#lancer").disabled = false;
+}
+
+async function suivre() {
+  const r = await fetch(`/api/analyses/${analyseId}`);
+  const t = await r.json();
+  afficherProgression(t);
+  if (t.etat === "erreur") return montrerErreur(t.erreur);
+  if (t.etat === "termine") { $("#lancer").disabled = false; return afficherRecette(t); }
+  setTimeout(suivre, 1500);
+}
+
+// Multiplie les quantités numériques (« 200 », « 1/2 », « 1,5 », « 2-3 »)
+function ajuster(q) {
+  if (facteur === 1 || !q) return q;
+  return q.replace(/(\d+)\s*\/\s*(\d+)|\d+(?:[.,]\d+)?/g, (m, a, b) => {
+    const v = a ? a / b : parseFloat(m.replace(",", "."));
+    const n = Math.round(v * facteur * 100) / 100;
+    return String(n).replace(".", ",");
+  });
+}
+
+function afficherRecette(t) {
+  const R = t.recette; recetteCourante = { ...R, url: t.url };
+  const sortie = $("#resultat");
+  sortie.classList.remove("cache");
+  if (!R.est_une_recette) {
+    sortie.innerHTML = `<h2>Pas de recette trouvée</h2><p>${esc(R.resume)}</p>`;
+    return;
+  }
+  const meta = [
+    R.portions && `🍽️ ${R.portions}`, R.temps_preparation && `🔪 Préparation : ${R.temps_preparation}`,
+    R.temps_cuisson && `🔥 Cuisson : ${R.temps_cuisson}`, R.temps_total && `⏱️ Total : ${R.temps_total}`,
+    R.difficulte !== "inconnue" && `📊 ${R.difficulte}`,
+  ].filter(Boolean).map((m) => `<span>${esc(m)}</span>`).join("");
+
+  const ingr = R.ingredients.map((i, k) => `
+    <li><input type="checkbox" id="i${k}" onchange="this.parentElement.classList.toggle('coche', this.checked)">
+      <label for="i${k}" style="margin:0;font-weight:400">
+        <span class="qte">${esc(ajuster(i.quantite))} ${esc(i.unite)}</span>
+        <span class="nom">${esc(i.nom)}</span>${i.precision ? `, <span class="petit">${esc(i.precision)}</span>` : ""}
+        ${i.estimee ? `<span class="estimee">(estimé)</span>` : ""}
+        <span class="src">· ${esc(i.sources.join(", "))}</span>
+      </label></li>`).join("");
+
+  const etapes = R.etapes.map((e) => `
+    <li><div>${esc(e.instruction)}
+      ${(e.duree || e.temperature) ? `<div class="petit">${[e.duree && "⏱️ " + e.duree, e.temperature && "🌡️ " + e.temperature].filter(Boolean).map(esc).join(" · ")}</div>` : ""}
+      ${e.image >= 0 && e.image < (t.images || []).length ? `<img loading="lazy" src="/api/analyses/${t.id}/images/${e.image}" alt="Image de l'étape ${e.numero}">` : ""}
+    </div></li>`).join("");
+
+  const liste = (titre, l) => l && l.length ? `<h3>${titre}</h3><ul>${l.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : "";
+
+  sortie.innerHTML = `
+    <div class="actions">
+      <button class="secondaire" onclick="window.print()">Imprimer</button>
+      <button class="secondaire" onclick="copier()">Copier le texte</button>
+      <button class="secondaire" onclick="telecharger()">Télécharger (.md)</button>
+    </div>
+    <h2>${esc(R.titre)}</h2>
+    <p>${esc(R.resume)}</p>
+    ${t.auteur ? `<p class="petit">D'après la vidéo de ${esc(t.auteur)}${t.url ? ` — <a href="${esc(t.url)}" target="_blank" rel="noopener">voir la vidéo</a>` : ""}</p>` : ""}
+    <div class="meta">${meta}</div>
+    <div class="colonnes">
+      <div>
+        <h3>Ingrédients</h3>
+        <div class="portions">Quantités ×
+          <button class="secondaire" onclick="changerFacteur(-0.5)">−</button>
+          <strong>${String(facteur).replace(".", ",")}</strong>
+          <button class="secondaire" onclick="changerFacteur(0.5)">+</button>
+        </div>
+        <ul class="ingredients">${ingr}</ul>
+        ${liste("Ustensiles", R.ustensiles)}
+      </div>
+      <div>
+        <h3>Préparation</h3>
+        <ol class="etapes">${etapes}</ol>
+      </div>
+    </div>
+    ${liste("💡 Astuces de la vidéo", R.astuces)}
+    ${liste("💬 Ce que disent les commentaires", R.apports_commentaires)}
+    ${liste("❓ Points incertains", R.incertitudes)}
+    <details class="annexe"><summary>Images analysées (${(t.images || []).length})</summary>
+      <div class="galerie">${(t.images || []).map((im, n) => `<figure><img loading="lazy" src="/api/analyses/${t.id}/images/${n}" alt="Image ${n}"><figcaption>${n} · ${im.seconde.toFixed(1)} s</figcaption></figure>`).join("")}</div>
+    </details>
+    <details class="annexe"><summary>Transcription de l'audio</summary><pre>${esc(t.transcription || "(aucune parole détectée)")}</pre></details>
+    ${t.description ? `<details class="annexe"><summary>Description de la publication</summary><pre>${esc(t.description)}</pre></details>` : ""}
+    <p class="petit">${t.nb_commentaires || 0} commentaire(s) lu(s).</p>`;
+  window._dernier = t;
+}
+
+function changerFacteur(d) { facteur = Math.max(0.5, facteur + d); afficherRecette(window._dernier); }
+
+function enMarkdown() {
+  const R = recetteCourante;
+  const l = [`# ${R.titre}`, "", R.resume, ""];
+  [["Portions", R.portions], ["Préparation", R.temps_preparation], ["Cuisson", R.temps_cuisson], ["Total", R.temps_total]]
+    .forEach(([k, v]) => v && l.push(`- **${k}** : ${v}`));
+  l.push("", "## Ingrédients", ...R.ingredients.map((i) => `- ${[ajuster(i.quantite), i.unite, i.nom].filter(Boolean).join(" ")}${i.precision ? ", " + i.precision : ""}${i.estimee ? " (estimé)" : ""}`));
+  if (R.ustensiles.length) l.push("", "## Ustensiles", ...R.ustensiles.map((u) => `- ${u}`));
+  l.push("", "## Préparation", ...R.etapes.map((e, k) => `${k + 1}. ${e.instruction}${e.duree ? ` (${e.duree})` : ""}${e.temperature ? ` — ${e.temperature}` : ""}`));
+  if (R.astuces.length) l.push("", "## Astuces", ...R.astuces.map((a) => `- ${a}`));
+  if (R.apports_commentaires.length) l.push("", "## D'après les commentaires", ...R.apports_commentaires.map((a) => `- ${a}`));
+  if (R.url) l.push("", `Source : ${R.url}`);
+  return l.join("\n");
+}
+async function copier() { await navigator.clipboard.writeText(enMarkdown()); alert("Recette copiée !"); }
+function telecharger() {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([enMarkdown()], { type: "text/markdown" }));
+  a.download = (recetteCourante.titre || "recette").replace(/[^\p{L}\p{N}]+/gu, "_") + ".md";
+  a.click();
+}
+</script>
+</body>
+</html>
