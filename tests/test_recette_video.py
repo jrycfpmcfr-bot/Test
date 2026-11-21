@@ -125,3 +125,14 @@ def test_appel_claude(video, tmp_path):
     contenu = extraction.ContenuVideo(dossier=tmp_path, video=video)
     assert analyse.rediger_recette(contenu, client=faux).titre == "Crêpes"
     assert recu["model"] == "claude-opus-5-5" and recu["output_format"] is analyse.Recette
+
+
+def test_mot_de_passe(monkeypatch):
+    client = TestClient(appli.app)
+    monkeypatch.setenv("APP_PASSWORD", "secret")
+    assert client.get("/").status_code == 401
+    assert client.get("/", auth=("moi", "faux")).status_code == 401
+    assert client.get("/", auth=("moi", "secret")).status_code == 200
+    assert client.get("/sante").status_code == 200
+    monkeypatch.delenv("APP_PASSWORD")
+    assert client.get("/").status_code == 200
