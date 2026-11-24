@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Liste de courses</title>
+<meta name="theme-color" content="#2f7d4f">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<style>
+:root{
+  --bg:#f6f5f1; --card:#fff; --text:#1d2420; --muted:#6b736e; --line:#e3e1da;
+  --accent:#2f7d4f; --accent-soft:#e3f1e8; --danger:#b3412f; --chip:#efede6;
+  --shadow:0 1px 2px rgba(0,0,0,.06),0 2px 8px rgba(0,0,0,.04);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#141816; --card:#1d2220; --text:#e8ece9; --muted:#97a09b; --line:#2d3430;
+    --accent:#5cbf86; --accent-soft:#1f3a2a; --danger:#e07766; --chip:#262c29;
+    --shadow:none;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  padding-bottom:calc(150px + env(safe-area-inset-bottom))}
+button,input,select,textarea{font:inherit;color:inherit}
+header{position:sticky;top:0;z-index:5;background:var(--bg);padding:calc(12px + env(safe-area-inset-top)) 16px 8px;border-bottom:1px solid var(--line)}
+.top{display:flex;align-items:center;gap:8px}
+h1{font-size:1.35rem;margin:0;flex:1}
+.count{color:var(--muted);font-size:.9rem}
+.iconbtn{background:none;border:0;padding:8px;border-radius:10px;cursor:pointer;line-height:0}
+.iconbtn:hover{background:var(--chip)}
+.iconbtn svg{width:22px;height:22px}
+.controls{display:flex;gap:8px;margin-top:10px;overflow-x:auto;scrollbar-width:none}
+.controls::-webkit-scrollbar{display:none}
+.seg{display:flex;background:var(--chip);border-radius:10px;padding:3px;flex-shrink:0}
+.seg button{border:0;background:none;padding:6px 10px;border-radius:8px;cursor:pointer;font-size:.88rem;white-space:nowrap}
+.seg button.on{background:var(--card);box-shadow:var(--shadow);font-weight:600}
+select.filter{border:0;background:var(--chip);border-radius:10px;padding:6px 10px;font-size:.88rem;flex-shrink:0}
+main{padding:8px 16px;max-width:720px;margin:0 auto}
+.group{margin-top:14px}
+.group h2{font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 6px 4px;display:flex;justify-content:space-between}
+.list{background:var(--card);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.item{display:flex;align-items:center;gap:12px;padding:11px 12px;border-top:1px solid var(--line)}
+.item:first-child{border-top:0}
+.check{appearance:none;width:26px;height:26px;border:2px solid var(--muted);border-radius:8px;flex-shrink:0;cursor:pointer;display:grid;place-content:center;margin:0}
+.check:checked{background:var(--accent);border-color:var(--accent)}
+.check:checked::after{content:"";width:12px;height:7px;border:3px solid #fff;border-top:0;border-right:0;transform:rotate(-45deg) translate(1px,-2px)}
+.body{flex:1;min-width:0;cursor:pointer}
+.name{word-break:break-word}
+.qty{color:var(--muted);font-weight:600;margin-right:4px}
+.item.done .name{text-decoration:line-through;color:var(--muted)}
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}
+.tag{font-size:.75rem;background:var(--chip);border-radius:6px;padding:1px 7px;color:var(--muted)}
+.tag.who{background:var(--accent-soft);color:var(--accent)}
+.empty{text-align:center;color:var(--muted);padding:48px 16px}
+.empty b{display:block;font-size:1.1rem;color:var(--text);margin-bottom:4px}
+.clear{display:block;margin:18px auto 0;background:none;border:1px solid var(--line);border-radius:10px;padding:8px 14px;color:var(--danger);cursor:pointer}
+/* barre d'ajout */
+.composer{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--card);border-top:1px solid var(--line);padding:10px 12px calc(10px + env(safe-area-inset-bottom))}
+.composer .row{display:flex;gap:8px;max-width:720px;margin:0 auto}
+.composer input[type=text]{flex:1;min-width:0;border:1px solid var(--line);background:var(--bg);border-radius:12px;padding:11px 12px}
+.composer .opts{display:flex;gap:8px;max-width:720px;margin:0 auto 8px}
+.composer .opts select{flex:1;min-width:0;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:7px 8px;font-size:.88rem}
+.btn{border:0;border-radius:12px;padding:0 14px;min-width:46px;height:46px;cursor:pointer;display:grid;place-content:center;background:var(--chip)}
+.btn svg{width:22px;height:22px}
+.btn.primary{background:var(--accent);color:#fff}
+.btn.rec{background:var(--danger);color:#fff;animation:pulse 1.2s infinite}
+@keyframes pulse{50%{opacity:.6}}
+.hint{max-width:720px;margin:6px auto 0;font-size:.8rem;color:var(--muted);min-height:1em}
+/* fenêtres */
+dialog{border:0;border-radius:16px;padding:0;width:min(520px,calc(100vw - 32px));background:var(--card);color:var(--text);box-shadow:0 10px 40px rgba(0,0,0,.25)}
+dialog::backdrop{background:rgba(0,0,0,.4)}
+.dlg{padding:18px}
+.dlg h3{margin:0 0 12px}
+.dlg label{display:block;font-size:.85rem;color:var(--muted);margin:10px 0 4px}
+.dlg input[type=text],.dlg select,.dlg textarea{width:100%;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:9px 10px}
+.actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
+.actions button{border:0;border-radius:10px;padding:9px 14px;cursor:pointer;background:var(--chip)}
+.actions .primary{background:var(--accent);color:#fff}
+.actions .danger{background:none;color:var(--danger);margin-right:auto}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips span{background:var(--chip);border-radius:8px;padding:4px 6px 4px 10px;display:flex;align-items:center;gap:4px}
+.chips button{border:0;background:none;cursor:pointer;color:var(--muted);padding:0 4px;font-size:1rem}
+.addrow{display:flex;gap:6px;margin-top:8px}
+.addrow input{flex:1}
+.addrow button{border:0;border-radius:10px;padding:0 12px;background:var(--accent);color:#fff;cursor:pointer}
+.ocr-list{max-height:45vh;overflow:auto;border:1px solid var(--line);border-radius:10px;margin-top:8px}
+.ocr-list label{display:flex;gap:10px;align-items:center;margin:0;padding:8px 10px;border-top:1px solid var(--line);color:var(--text);font-size:1rem}
+.ocr-list label:first-child{border-top:0}
+.ocr-list input[type=text]{flex:1;padding:5px 8px}
+.progress{height:6px;background:var(--chip);border-radius:3px;overflow:hidden;margin-top:12px}
+.progress div{height:100%;width:0;background:var(--accent);transition:width .2s}
+.small{font-size:.82rem;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="top">
+    <h1>Liste de courses</h1>
+    <span class="count" id="count"></span>
+    <button class="iconbtn" id="shareBtn" title="Partager la liste" aria-label="Partager la liste">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v13"/></svg>
+    </button>
+    <button class="iconbtn" id="settingsBtn" title="Magasins et personnes" aria-label="Magasins et personnes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+    </button>
+  </div>
+  <div class="controls">
+    <div class="seg" id="groupSeg" role="group" aria-label="Trier par">
+      <button data-g="store">Par magasin</button>
+      <button data-g="who">Par personne</button>
+      <button data-g="none">A → Z</button>
+    </div>
+    <select class="filter" id="filterWho" aria-label="Filtrer par personne"></select>
+    <select class="filter" id="filterStore" aria-label="Filtrer par magasin"></select>
+    <div class="seg"><button id="hideDone">Masquer cochés</button></div>
+  </div>
+</header>
+
+<main id="main"></main>
+
+<div class="composer">
+  <div class="opts">
+    <select id="newStore" aria-label="Magasin des nouveaux articles"></select>
+    <select id="newWho" aria-label="Personne qui s'en occupe"></select>
+  </div>
+  <form class="row" id="addForm">
+    <input type="text" id="addInput" placeholder="Ex : 2 baguettes, lait, œufs" autocomplete="off" enterkeyhint="done">
+    <button type="button" class="btn" id="micBtn" title="Dicter" aria-label="Dicter">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><path d="M12 17v5"/></svg>
+    </button>
+    <button type="button" class="btn" id="camBtn" title="Photo d'une liste" aria-label="Photo d'une liste">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+    </button>
+    <button type="submit" class="btn primary" title="Ajouter" aria-label="Ajouter">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+    </button>
+  </form>
+  <div class="hint" id="hint"></div>
+  <input type="file" id="fileInput" accept="image/*" capture="environment" hidden>
+</div>
+
+<!-- Modifier un article -->
+<dialog id="editDlg"><form method="dialog" class="dlg" id="editForm">
+  <h3>Modifier l'article</h3>
+  <label for="eName">Article</label><input type="text" id="eName" required>
+  <label for="eQty">Quantité</label><input type="text" id="eQty" placeholder="ex : 2, 500 g, 1 paquet">
+  <label for="eStore">Magasin</label><select id="eStore"></select>
+  <label for="eWho">Qui s'en occupe</label><select id="eWho"></select>
+  <label for="eNote">Note</label><input type="text" id="eNote" placeholder="marque, taille…">
+  <div class="actions">
+    <button type="button" class="danger" id="eDelete">Supprimer</button>
+    <button value="cancel" formnovalidate>Annuler</button>
+    <button value="ok" class="primary">Enregistrer</button>
+  </div>
+</form></dialog>
+
+<!-- Réglages -->
+<dialog id="setDlg"><div class="dlg">
+  <h3>Magasins et personnes</h3>
+  <label>Magasins</label>
+  <div class="chips" id="storeChips"></div>
+  <form class="addrow" id="storeForm"><input type="text" id="storeInput" placeholder="Ajouter un magasin"><button>Ajouter</button></form>
+  <label>Personnes</label>
+  <div class="chips" id="whoChips"></div>
+  <form class="addrow" id="whoForm"><input type="text" id="whoInput" placeholder="Ajouter une personne"><button>Ajouter</button></form>
+  <p class="small">En dictant ou en écrivant, ajoutez « chez Lidl » ou « pour Paul » pour choisir le magasin ou la personne. Ex : « du pain et 6 œufs chez Lidl pour Paul ».</p>
+  <div class="actions"><button class="primary" id="setClose">Fermer</button></div>
+</div></dialog>
+
+<!-- Photo / OCR -->
+<dialog id="ocrDlg"><div class="dlg">
+  <h3>Articles lus sur la photo</h3>
+  <div id="ocrStatus" class="small">Lecture de l'image…</div>
+  <div class="progress"><div id="ocrBar"></div></div>
+  <div class="ocr-list" id="ocrList" hidden></div>
+  <div class="actions">
+    <button id="ocrCancel">Annuler</button>
+    <button class="primary" id="ocrAdd" disabled>Ajouter la sélection</button>
+  </div>
+</div></dialog>
+
+<script>
+"use strict";
+const KEY = "liste-courses-v1";
+const NO_STORE = "", NO_WHO = "";
+const $ = s => document.querySelector(s);
+
+/* ---------- données ---------- */
+let state = load();
+function load(){
+  try{
+    const s = JSON.parse(localStorage.getItem(KEY));
+    if (s && Array.isArray(s.items)) return Object.assign(defaults(), s);
+  }catch(e){}
+  return defaults();
+}
+function defaults(){
+  return {
+    items: [],
+    stores: ["Supermarché","Boulangerie","Marché","Pharmacie"],
+    people: ["Moi"],
+    group: "store", hideDone: false, filterWho: "*", filterStore: "*",
+    newStore: NO_STORE, newWho: NO_WHO
+  };
+}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+
+/* ---------- analyse du texte (saisie, dictée, photo) ---------- */
+const NUMS = {un:1,une:1,deux:2,trois:3,quatre:4,cinq:5,six:6,sept:7,huit:8,neuf:9,dix:10,onze:11,douze:12,quinze:15,vingt:20,trente:30,cinquante:50,cent:100,"demi":"½","une demi":"½","un demi":"½","une douzaine":12,"une demi-douzaine":6,"demi-douzaine":6,douzaine:12};
+const UNITS = "kg|kilos?|g|grammes?|l|litres?|cl|ml|paquets?|boîtes?|boites?|bouteilles?|pots?|sachets?|tranches?|barquettes?|packs?|briques?|rouleaux?|bottes?|filets?|douzaines?";
+const norm = s => s.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().trim();
+
+function findIn(list, word){
+  const w = norm(word);
+  return list.find(x => norm(x) === w) || list.find(x => norm(x).startsWith(w) || w.startsWith(norm(x)));
+}
+
+/* Découpe une phrase en articles. Renvoie [{name, qty, store, who}] */
+function parseText(text, defStore, defWho){
+  let t = " " + text.replace(/\s+/g," ").trim() + " ";
+  let store = defStore, who = defWho;
+
+  // « chez Lidl », « au marché », « à la boulangerie » → magasin
+  t = t.replace(/\s(?:chez|au|à la|a la|à l'|aux)\s+([^\s,;.]+(?:\s[^\s,;.]+)?)(?=[\s,;.])/gi, (m, w) => {
+    const one = w.split(" ")[0];
+    const hit = findIn(state.stores, w) || findIn(state.stores, one);
+    if (hit){ store = hit; return " "; }
+    if (/^chez/i.test(m.trim())){ // magasin inconnu après « chez » : on le crée
+      const name = cap(one); state.stores.push(name); store = name; return " ";
+    }
+    return m;
+  });
+  // « pour Paul », « c'est Paul qui s'en occupe » → personne
+  t = t.replace(/\s(?:pour|par|c'est)\s+([^\s,;.]+)(?:\s+qui s'en occupe)?(?=[\s,;.])/gi, (m, w) => {
+    const hit = findIn(state.people, w);
+    if (hit){ who = hit; return " "; }
+    return m;
+  });
+
+  return t.split(/\s*(?:[,;\n•·]|\s+et\s+|\s+puis\s+|\s+plus\s+|\.\s)\s*/i)
+    .map(s => s.replace(/^[\s\-–*•·□☐✓✔\d]+[.)]\s+/,"").trim()) // puces / numéros de liste
+    .map(s => s.replace(/^[-–*•·□☐✓✔]+\s*/,"").replace(/[.]+$/,"").trim())
+    .filter(s => s.length > 1)
+    .map(s => parseOne(s, store, who))
+    .filter(x => x.name);
+}
+function parseOne(s, store, who){
+  let qty = "";
+  let m;
+  // nombre en chiffres (+ unité éventuelle)
+  if ((m = s.match(new RegExp("^(\\d+(?:[.,]\\d+)?)\\s*(" + UNITS + ")?\\b\\.?\\s*(?:de\\s+|d')?(.*)$","i")))){
+    qty = m[1] + (m[2] ? " " + m[2] : ""); s = m[3];
+  } else if ((m = s.match(/^(une demi-douzaine|demi-douzaine|une douzaine|un demi|une demi|un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix|onze|douze|quinze|vingt|trente|cinquante|cent)\s+(.*)$/i))){
+    const n = NUMS[m[1].toLowerCase()];
+    let rest = m[2];
+    const u = rest.match(new RegExp("^(" + UNITS + ")\\s+(?:de\\s+|d')?(.*)$","i"));
+    if (u){ qty = n + " " + u[1]; rest = u[2]; }
+    else if (n !== 1) qty = String(n);
+    s = rest.replace(/^(?:de\s+|d')/i,"");
+  } else if ((m = s.match(/^(.*?)\s+[x×]\s*(\d+)$/i))){
+    s = m[1]; qty = m[2];
+  }
+  // articles en tête
+  s = s.replace(/^(?:(?:du|de la|des|le|la|les)\s+|(?:de l|l|d)['’]\s*)/i,"").trim();
+  return { name: cap(s), qty, store, who };
+}
+const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+
+function addParsed(list){
+  let added = 0;
+  for (const p of list){
+    // si l'article existe déjà et n'est pas coché, on met juste à jour
+    const dup = state.items.find(i => !i.done && norm(i.name) === norm(p.name));
+    if (dup){ if (p.qty) dup.qty = p.qty; if (p.store) dup.store = p.store; if (p.who) dup.who = p.who; continue; }
+    state.items.push({ id: uid(), name: p.name, qty: p.qty, store: p.store || NO_STORE, who: p.who || NO_WHO, note: "", done: false, t: Date.now() });
+    added++;
+  }
+  save(); render();
+  return added;
+}
+
+/* ---------- affichage ---------- */
+function esc(s){ return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function options(sel, list, emptyLabel, value, extra){
+  sel.innerHTML = (extra||"") + `<option value="">${esc(emptyLabel)}</option>` +
+    list.map(x => `<option value="${esc(x)}">${esc(x)}</option>`).join("");
+  sel.value = value;
+  if (sel.value !== value) sel.value = "";
+}
+function renderSelects(){
+  options($("#newStore"), state.stores, "🏪 Magasin : aucun", state.newStore);
+  options($("#newWho"), state.people, "👤 Qui : personne", state.newWho);
+  options($("#filterWho"), state.people, "Sans personne", state.filterWho, `<option value="*">Tout le monde</option>`);
+  options($("#filterStore"), state.stores, "Sans magasin", state.filterStore, `<option value="*">Tous les magasins</option>`);
+  if (state.filterWho === "*") $("#filterWho").value = "*";
+  if (state.filterStore === "*") $("#filterStore").value = "*";
+}
+function render(){
+  renderSelects();
+  document.querySelectorAll("#groupSeg button").forEach(b => b.classList.toggle("on", b.dataset.g === state.group));
+  $("#hideDone").classList.toggle("on", state.hideDone);
+
+  let items = state.items.filter(i =>
+    (state.filterWho === "*" || i.who === state.filterWho) &&
+    (state.filterStore === "*" || i.store === state.filterStore));
+  const left = items.filter(i => !i.done).length;
+  $("#count").textContent = items.length ? `${left} à prendre` : "";
+  if (state.hideDone) items = items.filter(i => !i.done);
+
+  const main = $("#main");
+  if (!state.items.length){
+    main.innerHTML = `<div class="empty"><b>La liste est vide</b>Écrivez, dictez 🎤 ou prenez en photo 📷 une liste.</div>`;
+    return;
+  }
+  if (!items.length){
+    main.innerHTML = `<div class="empty"><b>Rien à afficher</b>Changez les filtres pour voir d'autres articles.</div>`;
+    return;
+  }
+
+  const byName = (a,b) => a.done - b.done || a.name.localeCompare(b.name, "fr", {sensitivity:"base"});
+  let groups;
+  if (state.group === "none"){
+    groups = [["", items.sort(byName)]];
+  } else {
+    const key = state.group === "store" ? "store" : "who";
+    const order = state.group === "store" ? state.stores : state.people;
+    const map = new Map();
+    for (const i of items){ const k = i[key] || ""; if (!map.has(k)) map.set(k, []); map.get(k).push(i); }
+    const rank = k => k === "" ? 1e9 : (order.indexOf(k) < 0 ? 1e8 : order.indexOf(k));
+    groups = [...map.entries()].sort((a,b) => rank(a[0]) - rank(b[0])).map(([k,v]) => [k || (key==="store" ? "Sans magasin" : "Personne d'attribué"), v.sort(byName)]);
+  }
+
+  main.innerHTML = groups.map(([title, list]) => `
+    <section class="group">
+      ${title ? `<h2><span>${esc(title)}</span><span>${list.filter(i=>!i.done).length}/${list.length}</span></h2>` : ""}
+      <div class="list">${list.map(itemHTML).join("")}</div>
+    </section>`).join("") +
+    (state.items.some(i => i.done) ? `<button class="clear" id="clearDone">Retirer les articles cochés</button>` : "");
+}
+function itemHTML(i){
+  const tags = [];
+  if (i.store && state.group !== "store") tags.push(`<span class="tag">🏪 ${esc(i.store)}</span>`);
+  if (i.who && state.group !== "who") tags.push(`<span class="tag who">👤 ${esc(i.who)}</span>`);
+  if (i.note) tags.push(`<span class="tag">${esc(i.note)}</span>`);
+  return `<div class="item${i.done?" done":""}" data-id="${i.id}">
+    <input type="checkbox" class="check" ${i.done?"checked":""} aria-label="Cocher ${esc(i.name)}">
+    <div class="body"><div class="name">${i.qty?`<span class="qty">${esc(i.qty)}</span>`:""}${esc(i.name)}</div>
+    ${tags.length?`<div class="tags">${tags.join("")}</div>`:""}</div></div>`;
+}
+
+/* ---------- événements ---------- */
+$("#main").addEventListener("click", e => {
+  if (e.target.id === "clearDone"){
+    const n = state.items.filter(i => i.done).length;
+    if (confirm(`Retirer ${n} article(s) coché(s) ?`)){ state.items = state.items.filter(i => !i.done); save(); render(); }
+    return;
+  }
+  const row = e.target.closest(".item"); if (!row) return;
+  const it = state.items.find(i => i.id === row.dataset.id); if (!it) return;
+  if (e.target.classList.contains("check")){ it.done = e.target.checked; save(); render(); if (navigator.vibrate) navigator.vibrate(15); }
+  else if (e.target.closest(".body")) openEdit(it);
+});
+$("#groupSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (b){ state.group = b.dataset.g; save(); render(); }});
+$("#hideDone").onclick = () => { state.hideDone = !state.hideDone; save(); render(); };
+$("#filterWho").onchange = e => { state.filterWho = e.target.value; save(); render(); };
+$("#filterStore").onchange = e => { state.filterStore = e.target.value; save(); render(); };
+$("#newStore").onchange = e => { state.newStore = e.target.value; save(); };
+$("#newWho").onchange = e => { state.newWho = e.target.value; save(); };
+
+function hint(msg, ms=3500){ const h = $("#hint"); h.textContent = msg; clearTimeout(hint.t); if (ms) hint.t = setTimeout(() => h.textContent = "", ms); }
+
+$("#addForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const v = $("#addInput").value.trim(); if (!v) return;
+  const n = addParsed(parseText(v, state.newStore, state.newWho));
+  $("#addInput").value = "";
+  hint(n ? `${n} article(s) ajouté(s)` : "Déjà dans la liste");
+});
+
+/* ---------- modifier ---------- */
+let editing = null;
+function openEdit(it){
+  editing = it;
+  $("#eName").value = it.name; $("#eQty").value = it.qty || ""; $("#eNote").value = it.note || "";
+  options($("#eStore"), state.stores, "Aucun", it.store);
+  options($("#eWho"), state.people, "Personne", it.who);
+  $("#editDlg").showModal();
+}
+$("#editDlg").addEventListener("close", () => {
+  if ($("#editDlg").returnValue === "ok" && editing){
+    editing.name = cap($("#eName").value.trim()) || editing.name;
+    editing.qty = $("#eQty").value.trim(); editing.note = $("#eNote").value.trim();
+    editing.store = $("#eStore").value; editing.who = $("#eWho").value;
+    save(); render();
+  }
+  editing = null;
+});
+$("#eDelete").onclick = () => {
+  if (editing){ state.items = state.items.filter(i => i !== editing); save(); render(); }
+  $("#editDlg").close("cancel");
+};
+
+/* ---------- réglages magasins / personnes ---------- */
+function renderChips(){
+  const chip = (x, kind) => `<span>${esc(x)}<button data-kind="${kind}" data-v="${esc(x)}" aria-label="Retirer ${esc(x)}">×</button></span>`;
+  $("#storeChips").innerHTML = state.stores.map(x => chip(x,"stores")).join("") || `<span class="small">Aucun</span>`;
+  $("#whoChips").innerHTML = state.people.map(x => chip(x,"people")).join("") || `<span class="small">Aucune</span>`;
+}
+$("#settingsBtn").onclick = () => { renderChips(); $("#setDlg").showModal(); };
+$("#setClose").onclick = () => $("#setDlg").close();
+$("#setDlg").addEventListener("close", render);
+$("#setDlg").addEventListener("click", e => {
+  const b = e.target.closest("button[data-kind]"); if (!b) return;
+  const kind = b.dataset.kind, v = b.dataset.v;
+  state[kind] = state[kind].filter(x => x !== v);
+  const field = kind === "stores" ? "store" : "who";
+  state.items.forEach(i => { if (i[field] === v) i[field] = ""; });
+  if (kind === "stores" && state.filterStore === v) state.filterStore = "*";
+  if (kind === "people" && state.filterWho === v) state.filterWho = "*";
+  save(); renderChips();
+});
+function addTo(kind, input){
+  const v = cap(input.value.trim()); if (!v) return;
+  if (!state[kind].some(x => norm(x) === norm(v))) state[kind].push(v);
+  input.value = ""; save(); renderChips();
+}
+$("#storeForm").onsubmit = e => { e.preventDefault(); addTo("stores", $("#storeInput")); };
+$("#whoForm").onsubmit = e => { e.preventDefault(); addTo("people", $("#whoInput")); };
+
+/* ---------- dictée ---------- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec = null, recording = false;
+$("#micBtn").onclick = () => {
+  if (!SR){ hint("La dictée n'est pas prise en charge par ce navigateur. Essayez Chrome, Edge ou Safari — ou le micro du clavier.", 6000); $("#addInput").focus(); return; }
+  if (recording){ rec.stop(); return; }
+  rec = new SR();
+  rec.lang = "fr-FR"; rec.interimResults = true; rec.continuous = false;
+  let finalText = "";
+  rec.onstart = () => { recording = true; $("#micBtn").classList.add("rec"); hint("J'écoute… ex : « du lait, 6 œufs et du pain chez Lidl »", 0); };
+  rec.onresult = ev => {
+    let interim = ""; finalText = "";
+    for (const r of ev.results){ if (r.isFinal) finalText += r[0].transcript; else interim += r[0].transcript; }
+    $("#addInput").value = finalText || interim;
+  };
+  rec.onerror = ev => { hint(ev.error === "not-allowed" ? "Accès au micro refusé." : "Je n'ai pas compris, réessayez.", 4000); };
+  rec.onend = () => {
+    recording = false; $("#micBtn").classList.remove("rec");
+    const text = (finalText || $("#addInput").value).trim();
+    if (text){
+      const n = addParsed(parseText(text, state.newStore, state.newWho));
+      $("#addInput").value = "";
+      hint(`🎤 « ${text} » → ${n} article(s) ajouté(s)`, 5000);
+    } else if (!$("#hint").textContent.startsWith("Accès")) hint("");
+  };
+  rec.start();
+};
+
+/* ---------- photo (lecture du texte avec Tesseract.js) ---------- */
+let tessLoading = null;
+function loadTesseract(){
+  if (window.Tesseract) return Promise.resolve();
+  return tessLoading ||= new Promise((ok, ko) => {
+    const s = document.createElement("script");
+    s.src = "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";
+    s.onload = ok; s.onerror = () => { tessLoading = null; ko(new Error("Impossible de charger le module de lecture (connexion internet nécessaire).")); };
+    document.head.appendChild(s);
+  });
+}
+let ocrCancelled = false, ocrFound = [];
+$("#camBtn").onclick = () => { $("#fileInput").value = ""; $("#fileInput").click(); };
+$("#fileInput").onchange = async e => {
+  const file = e.target.files[0]; if (!file) return;
+  ocrCancelled = false;
+  $("#ocrList").hidden = true; $("#ocrAdd").disabled = true; $("#ocrBar").style.width = "0";
+  $("#ocrStatus").textContent = "Préparation de la lecture…";
+  $("#ocrDlg").showModal();
+  try{
+    await loadTesseract();
+    const img = await shrink(file);
+    const { data } = await Tesseract.recognize(img, "fra", {
+      logger: m => {
+        if (m.status === "recognizing text"){ $("#ocrStatus").textContent = "Lecture du texte…"; $("#ocrBar").style.width = Math.round(m.progress*100) + "%"; }
+        else if (/loading|initializ/.test(m.status)) $("#ocrStatus").textContent = "Chargement (première fois, quelques secondes)…";
+      }
+    });
+    if (ocrCancelled) return;
+    const lines = data.text.split(/\n+/).map(l => l.trim()).filter(l => /[a-zà-ÿ]{2,}/i.test(l));
+    const found = ocrFound = lines.flatMap(l => parseText(l, state.newStore, state.newWho));
+    $("#ocrBar").style.width = "100%";
+    if (!found.length){ $("#ocrStatus").textContent = "Aucun texte lisible trouvé. Essayez une photo plus nette, bien éclairée et droite."; return; }
+    $("#ocrStatus").textContent = `${found.length} article(s) trouvé(s). Corrigez ou décochez avant d'ajouter :`;
+    $("#ocrList").innerHTML = found.map((p,k) => `<label><input type="checkbox" class="check" checked data-k="${k}"><input type="text" value="${esc((p.qty ? p.qty + " " : "") + p.name)}" data-k="${k}"></label>`).join("");
+    $("#ocrList").hidden = false; $("#ocrAdd").disabled = false;
+  }catch(err){
+    $("#ocrStatus").textContent = "Erreur : " + err.message;
+  }
+};
+// réduit les grandes photos de téléphone pour accélérer la lecture
+function shrink(file){
+  return new Promise(res => {
+    const img = new Image();
+    img.onload = () => {
+      const max = 1800, k = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement("canvas"); c.width = img.width*k; c.height = img.height*k;
+      const g = c.getContext("2d"); g.filter = "grayscale(1) contrast(1.4)"; g.drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(img.src); res(c);
+    };
+    img.onerror = () => res(file);
+    img.src = URL.createObjectURL(file);
+  });
+}
+$("#ocrCancel").onclick = () => { ocrCancelled = true; $("#ocrDlg").close(); };
+$("#ocrAdd").onclick = () => {
+  // on garde le magasin / la personne lus sur chaque ligne de la photo
+  const picked = [...$("#ocrList").querySelectorAll("label")]
+    .filter(l => l.querySelector(".check").checked)
+    .map(l => { const inp = l.querySelector("input[type=text]"); return [inp.value.trim(), ocrFound[inp.dataset.k]]; })
+    .filter(([t]) => t);
+  const n = addParsed(picked.flatMap(([t, p]) => parseText(t, p.store, p.who)));
+  $("#ocrDlg").close();
+  hint(`📷 ${n} article(s) ajouté(s) depuis la photo`);
+};
+
+/* ---------- partager ---------- */
+$("#shareBtn").onclick = async () => {
+  const todo = state.items.filter(i => !i.done);
+  if (!todo.length){ hint("Rien à partager : la liste est vide."); return; }
+  const groups = {};
+  todo.forEach(i => (groups[i.store || "Autres"] ||= []).push(i));
+  const text = "🛒 Liste de courses\n" + Object.entries(groups).map(([s, l]) =>
+    `\n${s} :\n` + l.map(i => `☐ ${i.qty ? i.qty + " " : ""}${i.name}${i.who ? " (" + i.who + ")" : ""}`).join("\n")).join("\n");
+  if (navigator.share){ try{ await navigator.share({ title: "Liste de courses", text }); }catch(e){} }
+  else { try{ await navigator.clipboard.writeText(text); hint("Liste copiée dans le presse-papiers."); }catch(e){ prompt("Copiez la liste :", text); } }
+};
+
+render();
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
+</body>
+</html>
