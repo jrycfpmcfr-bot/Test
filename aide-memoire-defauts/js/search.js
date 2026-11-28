@@ -80,13 +80,14 @@ const FIELD_WEIGHTS = {
   type: 0.6,
   verifications: 0.5,
   remede: 0.5,
+  notes: 0.7, // notes terrain personnelles (cause réelle, commentaire)
 };
 
-/** Prépare l'index d'une fiche (à appeler une fois par fiche). */
-export function indexFiche(fiche) {
+/** Prépare l'index d'une fiche ; `notesText` = texte des notes terrain associées. */
+export function indexFiche(fiche, notesText = '') {
   const fields = {};
   for (const key of Object.keys(FIELD_WEIGHTS)) {
-    const value = fiche[key];
+    const value = key === 'notes' ? notesText : fiche[key];
     const text = Array.isArray(value) ? value.join(' ') : value;
     fields[key] = [...new Set(tokenize(text))];
   }

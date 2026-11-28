@@ -1,4 +1,4 @@
-# Aide-mémoire de défauts — Version 1
+# Aide-mémoire de défauts — Version 2
 
 Application web personnelle, pensée pour le téléphone, pour retrouver vite la
 signification d'un code défaut, ses causes probables et les vérifications à faire
@@ -14,6 +14,22 @@ signification d'un code défaut, ses causes probables et les vérifications à f
   vérifications pas à pas, remède, source (document, référence, page), fiabilité.
 - **Lisibilité terrain** : gros textes, fort contraste, mode sombre par défaut,
   bouton « A± » pour agrandir encore.
+
+## Ce qu'ajoute la V2
+
+- **Notes terrain** sur chaque fiche : date, site, ligne/équipement, cause réelle
+  (obligatoire), commentaire. La dernière cause réelle s'affiche en haut de la
+  fiche, et la recherche trouve aussi le texte des notes.
+- **Favoris** : bouton « ☆ Épingler » ; les fiches épinglées s'affichent en tête.
+- **Historique** : les 30 dernières fiches consultées (8 affichées à l'accueil).
+- **Sauvegarde** (bouton ⇅) : export et import d'un fichier JSON. L'import
+  fusionne sans rien supprimer. Rappel à l'accueil si des notes n'ont pas été
+  exportées depuis 14 jours.
+
+Ces données restent **uniquement sur le téléphone** (IndexedDB, avec demande de
+stockage persistant). Le navigateur peut les effacer (iPhone notamment, si le site
+n'est pas utilisé ou si les données de navigation sont vidées) : exporter
+régulièrement. Les fichiers `*.export.json` sont exclus du dépôt.
 
 ## Règles sur les données
 
@@ -49,6 +65,6 @@ vrais comptes (Vercel Authentication ou Cloudflare Access).
 
 ## Feuille de route
 
-- V2 : notes terrain, favoris, historique (IndexedDB + export/import JSON).
+- ~~V2 : notes terrain, favoris, historique~~ (fait).
 - V3 : import depuis PDF avec validation manuelle, ajout de Yokogawa.
 - V4 : hors ligne (service worker qui ne met en cache que les réponses 200), partage.
