@@ -1,0 +1,1393 @@
+[
+  {
+    "id": "siemens-g120-F07801",
+    "code": "F07801",
+    "titre": "Moteur : surintensité",
+    "marque": "Siemens",
+    "type": "variateur",
+    "gammes": [
+      "G120"
+    ],
+    "symptomes": [
+      "moteur s'arrête",
+      "surintensité",
+      "défaut au démarrage",
+      "déclenche en accélération",
+      "F7801"
+    ],
+    "signification": "Le courant moteur a dépassé la limite de courant admissible ; l'entraînement se met en défaut.",
+    "causes": [
+      "Temps de montée (rampe d'accélération) trop court pour la charge",
+      "Données moteur incorrectes ou identification moteur non réalisée",
+      "Limite de courant paramétrée trop basse",
+      "Reprise au vol désactivée alors que le moteur tourne encore au démarrage",
+      "Court-circuit ou défaut à la terre dans le câble ou le moteur"
+    ],
+    "verifications": [
+      "Relever le contexte du défaut (accélération, régime établi, freinage)",
+      "Contrôler les données moteur par rapport à la plaque signalétique",
+      "Contrôler le temps de montée (p1120) et la limite de courant (p0640)",
+      "Vérifier si la reprise au vol (p1200) est nécessaire",
+      "Couper l'alimentation et attendre la décharge du circuit intermédiaire (temps indiqué sur l'appareil) avant toute intervention sur le circuit de puissance.",
+      "Mesurer l'isolement du câble et du moteur (moteur déconnecté du variateur)"
+    ],
+    "remede": "Corriger la cause (rampe, données moteur, limite de courant, câblage), puis acquitter le défaut. Numéros de paramètres à confirmer dans le manuel de liste.",
+    "source": {
+      "document": "SINAMICS G120 Control Units CU240B-2 / CU240E-2 - Manuel de liste (Listenhandbuch / List Manual)",
+      "reference": "à vérifier",
+      "page": "à vérifier (chapitre Défauts et alarmes)"
+    },
+    "fiabilite": "notice constructeur",
+    "genereIA": true,
+    "verifie": false
+  },
+  {
+    "id": "siemens-g120-F30001",
+    "code": "F30001",
+    "titre": "Partie puissance : surintensité",
+    "marque": "Siemens",
+    "type": "variateur",
+    "gammes": [
+      "G120"
+    ],
+    "symptomes": [
+      "arrêt immédiat",
+      "surintensité partie puissance",
+      "court-circuit",
+      "F30001"
+    ],
+    "signification": "La partie puissance a détecté une surintensité (seuil matériel de l'étage onduleur).",
+    "causes": [
+      "Rampe d'accélération trop courte ou charge à forte inertie",
+      "Données moteur ou réglage de la régulation inadaptés",
+      "Court-circuit entre phases dans le câble moteur ou le moteur",
+      "Défaut à la terre en sortie",
+      "Câble moteur trop long (courants capacitifs)",
+      "Partie puissance défectueuse"
+    ],
+    "verifications": [
+      "Couper l'alimentation et attendre la décharge du circuit intermédiaire (temps indiqué sur l'appareil) avant toute intervention sur le circuit de puissance.",
+      "Déconnecter le moteur et mesurer l'isolement phase-phase et phase-terre du câble et du moteur",
+      "Vérifier la longueur et le type de câble moteur par rapport aux limites du manuel de la partie puissance",
+      "Contrôler les rampes et les données moteur",
+      "Si le défaut apparaît moteur déconnecté, suspecter la partie puissance"
+    ],
+    "remede": "Éliminer le court-circuit ou adapter le paramétrage ; remplacer la partie puissance si le défaut persiste sans moteur raccordé.",
+    "source": {
+      "document": "SINAMICS G120 Control Units CU240B-2 / CU240E-2 - Manuel de liste (Listenhandbuch / List Manual)",
+      "reference": "à vérifier",
+      "page": "à vérifier (chapitre Défauts et alarmes)"
+    },
+    "fiabilite": "notice constructeur",
+    "genereIA": true,
+    "verifie": false
+  },
+  {
+    "id": "siemens-g120-F30002",
+    "code": "F30002",
+    "titre": "Partie puissance : surtension circuit intermédiaire",
+    "marque": "Siemens",
+    "type": "variateur",
+    "gammes": [
+      "G120"
+    ],
+    "symptomes": [
+      "défaut en décélération",
+      "surtension",
+      "arrêt au freinage",
+      "tension DC trop haute",
+      "F30002"
+    ],
+    "signification": "La tension du circuit intermédiaire (bus continu) a dépassé le seuil de surtension.",
+    "causes": [
+      "Rampe de décélération trop courte pour l'inertie de la charge (énergie restituée)",
+      "Charge entraînante (levage, déroulage) sans résistance de freinage",
+      "Régulateur Vdc_max désactivé",
+      "Résistance de freinage absente, mal raccordée ou mal paramétrée",
+      "Tension réseau trop élevée"
+    ],
+    "verifications": [
+      "Vérifier si le défaut apparaît en freinage",
+      "Contrôler le temps de descente (p1121)",
+      "Contrôler la configuration du régulateur Vdc (p1240)",
+      "Vérifier la présence et le raccordement de la résistance de freinage",
+      "Mesurer la tension réseau et la comparer à la tension d'appareil paramétrée (p0210)"
+    ],
+    "remede": "Allonger la rampe de descente, activer le régulateur Vdc_max ou ajouter une résistance de freinage adaptée. Numéros de paramètres à confirmer.",
+    "source": {
+      "document": "SINAMICS G120 Control Units CU240B-2 / CU240E-2 - Manuel de liste (Listenhandbuch / List Manual)",
+      "reference": "à vérifier",
+      "page": "à vérifier (chapitre Défauts et alarmes)"
+    },
+    "fiabilite": "notice constructeur",
+    "genereIA": true,
+    "verifie": false
+  },
+  {
+    "id": "siemens-g120-F30003",
+    "code": "F30003",
+    "titre": "Partie puissance : sous-tension circuit intermédiaire",
+    "marque": "Siemens",
+    "type": "variateur",
+    "gammes": [
+      "G120"
+    ],
+    "symptomes": [
+      "coupure réseau",
+      "microcoupure",
+      "sous-tension",
+      "tension DC trop basse",
+      "F30003"
+    ],
+    "signification": "La tension du circuit intermédiaire est descendue sous le seuil de sous-tension pendant le fonctionnement.",
+    "causes": [
+      "Coupure ou microcoupure du réseau",
+      "Chute de tension réseau sous la plage admissible",
+      "Perte d'une phase réseau",
+      "Fusible ou contacteur amont défaillant",
+      "Tension d'appareil (p0210) mal paramétrée"
+    ],
+    "verifications": [
+      "Mesurer la tension réseau sur les 3 phases",
+      "Contrôler fusibles, disjoncteur et contacteur amont",
+      "Contrôler le serrage des bornes réseau",
+      "Vérifier la cohérence de p0210 avec la tension réseau réelle"
+    ],
+    "remede": "Rétablir une alimentation réseau correcte, puis acquitter. Le régulateur Vdc_min (tampon cinétique) peut être envisagé si les microcoupures sont récurrentes (à valider selon l'application).",
+    "source": {
+      "document": "SINAMICS G120 Control Units CU240B-2 / CU240E-2 - Manuel de liste (Listenhandbuch / List Manual)",
+      "reference": "à vérifier",
+      "page": "à vérifier (chapitre Défauts et alarmes)"
+    },
+    "fiabilite": "notice constructeur",
+    "genereIA": true,
+    "verifie": false
+  },
+  {
+    "id": "siemens-g120-F30004",
+    "code": "F30004",
+    "titre": "Partie puissance : surchauffe radiateur onduleur",
+    "marque": "Siemens",
+    "type": "variateur",
+    "gammes": [
+      "G120"
+    ],
+    "symptomes": [
+      "surchauffe variateur",
+      "ventilateur",
+      "armoire chaude",
+      "température radiateur",
+      "F30004"
+    ],
+    "signification": "La température du radiateur de la partie puissance a dépassé le seuil de défaut.",
+    "causes": [
+      "Ventilateur de la partie puissance défectueux ou encrassé",
+      "Température ambiante de l'armoire trop élevée",
+      "Entrées/sorties d'air obstruées ou distances de montage non respectées",
+      "Fréquence de découpage élevée",
+      "Surcharge prolongée"
+    ],
+    "verifications": [
+      "Vérifier le fonctionnement du ventilateur du variateur",
+      "Contrôler la propreté du radiateur et des filtres d'armoire",
+      "Mesurer la température dans l'armoire",
+      "Vérifier les distances de montage données dans le manuel de la partie puissance",
+      "Contrôler la fréquence de découpage paramétrée"
+    ],
+    "remede": "Rétablir le refroidissement (ventilateur, filtres, climatisation d'armoire), réduire la charge ou la fréquence de découpage ; acquitter après refroidissement.",
+    "source": {
+      "document": "SINAMICS G120 Control Units CU240B-2 / CU240E-2 - Manuel de liste (Listenhandbuch / List Manual)",
+      "reference": "à vérifier",
+      "page": "à vérifier (chapitre Défauts et alarmes)"
+    },
+    "fiabilite": "notice constructeur",
+    "genereIA": true,
+    "verifie": false
+  },
+  {
+    "id": "siemens-g120-F30005",
+    "code": "F30005",
+    "titre": "Partie puissance : surcharge I²t",
+    "marque": "Siemens",
+    "type": "variateur",
+    "gammes": [
+      "G120"
+    ],
+    "symptomes": [
+      "surcharge variateur",
+      "I2t",
+      "charge trop forte",
+      "F30005"
+    ],
+    "signification": "Le modèle thermique I²t de la partie puissance a atteint sa limite (surcharge du variateur).",
+    "causes": [
+      "Charge mécanique supérieure au dimensionnement",
+      "Cycles de démarrage trop fréquents ou rampes trop courtes",
+      "Problème mécanique (frottement, frein non desserré)",
+      "Variateur sous-dimensionné pour l'application"
+    ],
+    "verifications": [
+      "Relever le courant de sortie en fonctionnement et le comparer au courant assigné de la partie puissance",
+      "Vérifier l'état mécanique de la machine entraînée",
+      "Vérifier le desserrage du frein moteur s'il existe",
+      "Contrôler la réaction à la surcharge paramétrée (p0290)"
+    ],
+    "remede": "Réduire la charge ou les cycles, corriger le problème mécanique ou redimensionner le variateur. Paramètre à confirmer.",
+    "source": {
+      "document": "SINAMICS G120 Control Units CU240B-2 / CU240E-2 - Manuel de liste (Listenhandbuch / List Manual)",
+      "reference": "à vérifier",
+      "page": "à vérifier (chapitre Défauts et alarmes)"
+    },
+    "fiabilite": "notice constructeur",
+    "genereIA": true,
+    "verifie": false
+  },
+  {
+    "id": "siemens-g120-F30011",
+    "code": "F30011",
+    "titre": "Partie puissance : perte de phase réseau",
+    "marque": "Siemens",
+    "type": "variateur",
+    "gammes": [
+      "G120"
+    ],
+    "symptomes": [
+      "perte de phase",
+      "phase manquante",
+      "fusible grillé",
+      "F30011"
+    ],
+    "signification": "La partie puissance a détecté l'absence d'une phase du réseau d'alimentation.",
+    "causes": [
+      "Fusible amont fondu sur une phase",
+      "Borne réseau desserrée",
+      "Contacteur amont avec un pôle défaillant",
+      "Déséquilibre important de la tension réseau"
+    ],
+    "verifications": [
+      "Mesurer les trois tensions réseau entre phases, variateur sous tension (habilitation requise)",
+      "Contrôler les fusibles et le disjoncteur amont",
+      "Couper l'alimentation et attendre la décharge du circuit intermédiaire (temps indiqué sur l'appareil) avant toute intervention sur le circuit de puissance.",
+      "Contrôler le serrage des bornes d'alimentation"
+    ],
+    "remede": "Rétablir les trois phases (remplacer le fusible, resserrer, réparer le contacteur), puis acquitter.",
+    "source": {
+      "document": "SINAMICS G120 Control Units CU240B-2 / CU240E-2 - Manuel de liste (Listenhandbuch / List Manual)",
+      "reference": "à vérifier",
+      "page": "à vérifier (chapitre Défauts et alarmes)"
+    },
+    "fiabilite": "notice constructeur",
+    "genereIA": true,
+    "verifie": false
+  },
+  {
+    "id": "siemens-g120-F07011",
+    "code": "F07011",
+    "titre": "Moteur : surchauffe",
+    "marque": "Siemens",
+    "type": "variateur",
+    "gammes": [
+      "G120"
+    ],
+    "symptomes": [
+      "moteur chaud",
+      "sonde PTC",
+      "KTY",
+      "surchauffe moteur",
+      "F7011"
+    ],
+    "signification": "La température moteur (mesurée par sonde ou calculée par le modèle thermique) a dépassé le seuil de défaut.",
+    "causes": [
+      "Surcharge du moteur",
+      "Ventilation moteur insuffisante (ventilateur, ailettes encrassées)",
+      "Fonctionnement prolongé à basse vitesse avec moteur autoventilé",
+      "Seuils de température mal paramétrés",
+      "Sonde de température ou câblage de sonde défectueux"
+    ],
+    "verifications": [
+      "Mesurer la température du carter moteur",
+      "Contrôler le ventilateur et la propreté du moteur",
+      "Contrôler le type de sonde paramétré (p0601) et les seuils (p0604 alarme, p0605 défaut)",
+      "Mesurer la résistance de la sonde (moteur hors tension, sonde déconnectée)",
+      "Comparer le courant moteur au courant assigné"
+    ],
+    "remede": "Laisser refroidir, supprimer la surcharge ou améliorer le refroidissement, corriger le paramétrage ou la sonde. Paramètres à confirmer.",
+    "source": {
+      "document": "SINAMICS G120 Control Units CU240B-2 / CU240E-2 - Manuel de liste (Listenhandbuch / List Manual)",
+      "reference": "à vérifier",
+      "page": "à vérifier (chapitre Défauts et alarmes)"
+    },
+    "fiabilite": "notice constructeur",
+    "genereIA": true,
+    "verifie": false
+  },
+  {
+    "id": "siemens-g120-F07900",
+    "code": "F07900",
+    "titre": "Moteur bloqué",
+    "marque": "Siemens",
+    "type": "variateur",
+    "gammes": [
+      "G120"
+    ],
+    "symptomes": [
+      "moteur bloqué",
+      "arbre bloqué",
+      "ne tourne pas",
+      "calage",
+      "F7900"
+    ],
+    "signification": "Le moteur fonctionne en limite de couple ou de courant à une vitesse inférieure au seuil, plus longtemps que la temporisation de surveillance.",
+    "causes": [
+      "Blocage mécanique de la machine entraînée",
+      "Frein moteur non desserré",
+      "Limite de courant ou de couple trop basse",
+      "Données moteur incorrectes",
+      "Temporisation de surveillance trop courte"
+    ],
+    "verifications": [
+      "Vérifier que l'arbre tourne librement (consignation)",
+      "Vérifier la commande et le desserrage du frein",
+      "Contrôler la limite de courant (p0640) et les limites de couple",
+      "Contrôler le seuil de vitesse (p2175) et la temporisation (p2177) de la surveillance de blocage"
+    ],
+    "remede": "Supprimer le blocage mécanique ou corriger le paramétrage, puis acquitter. Paramètres à confirmer.",
+    "source": {
+      "document": "SINAMICS G120 Control Units CU240B-2 / CU240E-2 - Manuel de liste (Listenhandbuch / List Manual)",
+      "reference": "à vérifier",
+      "page": "à vérifier (chapitre Défauts et alarmes)"
+    },
+    "fiabilite": "notice constructeur",
+    "genereIA": true,
+    "verifie": false
+  },
+  {
+    "id": "siemens-g120-F07901",
+    "code": "F07901",
+    "titre": "Moteur : survitesse",
+    "marque": "Siemens",
+    "type": "variateur",
+    "gammes": [
+      "G120"
+    ],
+    "symptomes": [
+      "survitesse",
+      "vitesse trop haute",
+      "charge entraînante",
+      "F7901"
+    ],
+    "signification": "La vitesse du moteur a dépassé la vitesse maximale admissible augmentée de l'hystérésis.",
+    "causes": [
+      "Charge entraînante qui accélère le moteur",
+      "Vitesse maximale (p1082) mal paramétrée",
+      "Réglage de la régulation de vitesse inadapté",
+      "Problème de codeur (si régulation avec codeur)"
+    ],
+    "verifications": [
+      "Vérifier si la charge peut entraîner le moteur",
+      "Contrôler la vitesse maximale p1082 et l'hystérésis associée (p2162, à confirmer)",
+      "Contrôler le codeur et son câblage le cas échéant"
+    ],
+    "remede": "Corriger le paramétrage ou la régulation ; prévoir une capacité de freinage si la charge est entraînante.",
+    "source": {
+      "document": "SINAMICS G120 Control Units CU240B-2 / CU240E-2 - Manuel de liste (Listenhandbuch / List Manual)",
+      "reference": "à vérifier",
+      "page": "à vérifier (chapitre Défauts et alarmes)"
+    },
+    "fiabilite": "notice constructeur",
+    "genereIA": true,
+    "verifie": false
+  },
+  {
+    "id": "siemens-g120-F01910",
+    "code": "F01910",
+    "titre": "Bus de terrain : temporisation consigne",
+    "marque": "Siemens",
+    "type": "variateur",
+    "gammes": [
+      "G120"
+    ],
+    "symptomes": [
+      "perte communication",
+      "PROFINET",
+      "PROFIBUS",
+      "consigne absente",
+      "automate en STOP",
+      "F1910"
+    ],
+    "signification": "La réception de la consigne via le bus de terrain (PROFIBUS / PROFINET) est interrompue au-delà du temps de surveillance.",
+    "causes": [
+      "Automate passé en STOP",
+      "Câble ou connecteur bus défectueux",
+      "Liaison réseau interrompue (switch, coupure)",
+      "Configuration matérielle modifiée côté automate",
+      "Temps de surveillance trop court (p2040)"
+    ],
+    "verifications": [
+      "Vérifier l'état RUN de l'automate",
+      "Contrôler les LED BF/bus du variateur",
+      "Contrôler câble, connecteurs et équipements réseau",
+      "Vérifier la cohérence du télégramme et de l'adresse/nom d'appareil",
+      "Contrôler le temps de surveillance p2040 (à confirmer)"
+    ],
+    "remede": "Rétablir la communication, puis acquitter le défaut.",
+    "source": {
+      "document": "SINAMICS G120 Control Units CU240B-2 / CU240E-2 - Manuel de liste (Listenhandbuch / List Manual)",
+      "reference": "à vérifier",
+      "page": "à vérifier (chapitre Défauts et alarmes)"
+    },
+    "fiabilite": "notice constructeur",
+    "genereIA": true,
+    "verifie": false
+  },
+  {
+    "id": "siemens-g120-F07860",
+    "code": "F07860",
+    "titre": "Défaut externe 1",
+    "marque": "Siemens",
+    "type": "variateur",
+    "gammes": [
+      "G120"
+    ],
+    "symptomes": [
+      "défaut externe",
+      "entrée défaut",
+      "arrêt sur entrée TOR",
+      "F7860"
+    ],
+    "signification": "Le signal « défaut externe 1 » a été activé. La source du signal est définie par paramétrage (BICO).",
+    "causes": [
+      "Déclenchement volontaire d'un équipement externe (relais de protection, thermostat, contact de sécurité process)",
+      "Câblage de l'entrée TOR interrompu (si la logique est active à 0)",
+      "Mot de commande bus activant le défaut externe"
+    ],
+    "verifications": [
+      "Identifier la source du signal paramétrée (p2106, à confirmer)",
+      "Contrôler l'état de l'entrée TOR concernée",
+      "Remonter à l'équipement externe et à son contact",
+      "Vérifier le mot de commande envoyé par l'automate si la source est le bus"
+    ],
+    "remede": "Supprimer la cause sur l'équipement externe, puis acquitter. Ne pas ponter le signal sans analyse.",
+    "source": {
+      "document": "SINAMICS G120 Control Units CU240B-2 / CU240E-2 - Manuel de liste (Listenhandbuch / List Manual)",
+      "reference": "à vérifier",
+      "page": "à vérifier (chapitre Défauts et alarmes)"
+    },
+    "fiabilite": "notice constructeur",
+    "genereIA": true,
+    "verifie": false
+  },
+  {
+    "id": "siemens-g120-A07400",
+    "code": "A07400",
+    "titre": "Entraînement : régulateur Vdc_max actif",
+    "marque": "Siemens",
+    "type": "variateur",
+    "gammes": [
+      "G120"
+    ],
+    "symptomes": [
+      "décélération plus longue",
+      "rampe allongée",
+      "alarme freinage",
+      "A7400"
+    ],
+    "signification": "Alarme (pas de déclenchement) : le régulateur Vdc_max est actif pour limiter la tension du circuit intermédiaire ; il prolonge automatiquement la décélération.",
+    "causes": [
+      "Rampe de décélération trop courte pour l'inertie de la charge",
+      "Charge entraînante",
+      "Tension réseau élevée"
+    ],
+    "verifications": [
+      "Vérifier si l'alarme apparaît en freinage",
+      "Contrôler le temps de descente (p1121)",
+      "Évaluer si l'allongement de la rampe est acceptable pour le process"
+    ],
+    "remede": "Si le temps d'arrêt réel n'est pas acceptable, allonger la rampe de consigne ou ajouter une résistance de freinage. Sinon, l'alarme est informative.",
+    "source": {
+      "document": "SINAMICS G120 Control Units CU240B-2 / CU240E-2 - Manuel de liste (Listenhandbuch / List Manual)",
+      "reference": "à vérifier",
+      "page": "à vérifier (chapitre Défauts et alarmes)"
+    },
+    "fiabilite": "notice constructeur",
+    "genereIA": true,
+    "verifie": false
+  },
+  {
+    "id": "siemens-s71500-led-error-clignotant",
+    "code": "LED ERROR rouge clignotante",
+    "titre": "LED ERROR clignotante (CPU)",
+    "marque": "Siemens",
+    "type": "automate",
+    "gammes": [
+      "S7-1500"
+    ],
+    "symptomes": [
+      "LED rouge clignote",
+      "ERROR",
+      "défaut CPU",
+      "erreur diagnostic"
+    ],
+    "signification": "Une alarme de diagnostic ou une erreur est présente (CPU ou module/station subordonné). La combinaison exacte avec les LED RUN/STOP et MAINT est donnée dans le tableau des LED du manuel.",
+    "causes": [
+      "Alarme de diagnostic d'un module ou d'une voie",
+      "Station ou appareil réseau défaillant",
+      "Erreur de programme ou de configuration",
+      "Carte mémoire SIMATIC absente ou défectueuse"
+    ],
+    "verifications": [
+      "Lire le diagnostic sur l'écran de la CPU",
+      "Lire la mémoire tampon de diagnostic dans TIA Portal (en ligne et diagnostic)",
+      "Comparer la combinaison des LED RUN/STOP, ERROR, MAINT avec le tableau du manuel système"
+    ],
+    "remede": "Traiter la cause indiquée dans la mémoire tampon de diagnostic.",
+    "source": {
+      "document": "SIMATIC S7-1500 / ET 200MP Système d'automatisation - Manuel système",
+      "reference": "A5E03461182 (à confirmer)",
+      "page": "à vérifier (chapitre Signalisations par LED / Diagnostic)"
+    },
+    "fiabilite": "notice constructeur",
+    "genereIA": true,
+    "verifie": false
+  },
+  {
+    "id": "siemens-s71500-led-maint",
+    "code": "LED MAINT jaune",
+    "titre": "LED MAINT allumée (demande de maintenance)",
+    "marque": "Siemens",
+    "type": "automate",
+    "gammes": [
+      "S7-1500",
+      "ET 200SP"
+    ],
+    "symptomes": [
+      "LED jaune",
+      "MAINT",
+      "maintenance requise",
+      "avertissement"
+    ],
+    "signification": "Une demande ou un besoin de maintenance est signalé (la LED peut aussi clignoter lors d'un test de clignotement depuis TIA Portal, à vérifier selon le manuel).",
+    "causes": [
+      "Besoin de maintenance signalé par un module ou un appareil PROFINET",
+      "Fonction de clignotement LED lancée depuis l'outil d'ingénierie"
+    ],
+    "verifications": [
+      "Lire la mémoire tampon de diagnostic",
+      "Identifier le module ou l'appareil en maintenance dans la vue En ligne et diagnostic"
+    ],
+    "remede": "Traiter la demande de maintenance indiquée par le diagnostic.",
+    "source": {
+      "document": "SIMATIC S7-1500 / ET 200MP Système d'automatisation - Manuel système",
+      "reference": "A5E03461182 (à confirmer)",
+      "page": "à vérifier (chapitre Signalisations par LED / Diagnostic)"
+    },
+    "fiabilite": "notice constructeur",
+    "genereIA": true,
+    "verifie": false
+  },
+  {
+    "id": "siemens-et200sp-rupture-fil",
+    "code": "Rupture de fil",
+    "titre": "Rupture de fil (diagnostic de voie)",
+    "marque": "Siemens",
+    "type": "E/S déportées",
+    "gammes": [
+      "ET 200SP",
+      "S7-1500"
+    ],
+    "symptomes": [
+      "rupture de fil",
+      "wire break",
+      "capteur débranché",
+      "LED voie rouge",
+      "entrée ne remonte pas"
+    ],
+    "signification": "Le module a détecté une interruption du circuit sur une voie pour laquelle le diagnostic « rupture de fil » est activé (type d'erreur de voie 6 en PROFINET).",
+    "causes": [
+      "Câble capteur/actionneur coupé ou débranché",
+      "Connecteur ou borne desserré",
+      "Capteur défectueux",
+      "Courant de repos insuffisant pour le diagnostic (capteur sans résistance de charge adaptée)",
+      "Diagnostic activé sur une voie non câblée"
+    ],
+    "verifications": [
+      "Identifier la voie dans le diagnostic TIA Portal",
+      "Contrôler le câblage de la voie jusqu'au capteur",
+      "Mesurer la continuité / le courant de la boucle",
+      "Vérifier dans la configuration si le diagnostic doit être actif sur cette voie"
+    ],
+    "remede": "Réparer le câblage ou remplacer le capteur ; désactiver le diagnostic uniquement pour les voies non utilisées.",
+    "source": {
+      "document": "SIMATIC ET 200SP Périphérie décentralisée - Manuel système",
+      "reference": "A5E03576849 (à confirmer)",
+      "page": "à vérifier (chapitre Diagnostic / Alarmes) + manuel du module E/S concerné"
+    },
+    "fiabilite": "notice constructeur",
+    "genereIA": true,
+    "verifie": false
+  },
+  {
+    "id": "siemens-et200sp-court-circuit",
+    "code": "Court-circuit",
+    "titre": "Court-circuit (diagnostic de voie)",
+    "marque": "Siemens",
+    "type": "E/S déportées",
+    "gammes": [
+      "ET 200SP",
+      "S7-1500"
+    ],
+    "symptomes": [
+      "court-circuit",
+      "court-circuit à la masse",
+      "sortie ne commande pas",
+      "LED voie rouge"
+    ],
+    "signification": "Le module a détecté un court-circuit sur une voie (vers la masse ou vers L+ selon le module) pour laquelle ce diagnostic est activé (type d'erreur de voie 1 en PROFINET).",
+    "causes": [
+      "Câble endommagé ou écrasé",
+      "Actionneur défectueux (bobine en court-circuit)",
+      "Erreur de câblage",
+      "Alimentation capteur en court-circuit"
+    ],
+    "verifications": [
+      "Identifier la voie dans le diagnostic",
+      "Déconnecter la charge et vérifier si le défaut disparaît",
+      "Mesurer l'isolement du câble",
+      "Contrôler l'actionneur ou le capteur"
+    ],
+    "remede": "Éliminer le court-circuit ; le défaut disparaît ensuite (comportement d'acquittement à vérifier selon le module).",
+    "source": {
+      "document": "SIMATIC ET 200SP Périphérie décentralisée - Manuel système",
+      "reference": "A5E03576849 (à confirmer)",
+      "page": "à vérifier (chapitre Diagnostic / Alarmes) + manuel du module E/S concerné"
+    },
+    "fiabilite": "notice constructeur",
+    "genereIA": true,
+    "verifie": false
+  },
+  {
+    "id": "siemens-et200sp-tension-lplus-absente",
+    "code": "Tension d'alimentation L+ absente",
+    "titre": "Absence de tension d'alimentation L+ / tension de charge",
+    "marque": "Siemens",
+    "type": "E/S déportées",
+    "gammes": [
+      "ET 200SP",
+      "S7-1500"
+    ],
+    "symptomes": [
+      "pas de 24V",
+      "L+ manquante",
+      "tension de charge absente",
+      "PWR éteinte",
+      "toutes les voies en défaut"
+    ],
+    "signification": "La tension d'alimentation / de charge (L+) du module ou du groupe de potentiel est absente ou trop faible.",
+    "causes": [
+      "Disjoncteur ou fusible 24 V amont déclenché",
+      "Alimentation 24 V défaillante",
+      "BaseUnit de groupe de potentiel (claire) non alimentée ou mal câblée",
+      "Bornes d'alimentation desserrées"
+    ],
+    "verifications": [
+      "Mesurer le 24 V sur les bornes L+/M de la BaseUnit qui ouvre le groupe de potentiel",
+      "Contrôler les protections du circuit 24 V",
+      "Vérifier la LED PWR du module",
+      "Vérifier la structure des groupes de potentiel (BaseUnit claire / foncée)"
+    ],
+    "remede": "Rétablir l'alimentation L+.",
+    "source": {
+      "document": "SIMATIC ET 200SP Périphérie décentralisée - Manuel système",
+      "reference": "A5E03576849 (à confirmer)",
+      "page": "à vérifier (chapitre Diagnostic / Alarmes) + manuel du module E/S concerné"
+    },
+    "fiabilite": "notice constructeur",
+    "genereIA": true,
+    "verifie": false
+  },
+  {
+    "id": "siemens-et200sp-module-manquant",
+    "code": "Module manquant / retiré",
+    "titre": "Module manquant ou retiré",
+    "marque": "Siemens",
+    "type": "E/S déportées",
+    "gammes": [
+      "ET 200SP"
+    ],
+    "symptomes": [
+      "module retiré",
+      "module absent",
+      "station en défaut",
+      "configuration différente",
+      "emplacement vide"
+    ],
+    "signification": "Un module configuré n'est pas présent ou n'est pas reconnu à son emplacement ; la station signale un écart entre configuration prévue et réelle.",
+    "causes": [
+      "Module retiré ou mal enfiché sur la BaseUnit",
+      "Module défectueux",
+      "Référence de module différente de la configuration",
+      "Module serveur absent en fin de station"
+    ],
+    "verifications": [
+      "Vérifier physiquement la présence et l'enfichage de chaque module",
+      "Comparer la référence réelle à la configuration matérielle",
+      "Vérifier la présence du module serveur",
+      "Lire le diagnostic de la station dans TIA Portal"
+    ],
+    "remede": "Enficher ou remplacer le module avec la bonne référence ; corriger la configuration si l'écart est voulu.",
+    "source": {
+      "document": "SIMATIC ET 200SP Périphérie décentralisée - Manuel système",
+      "reference": "A5E03576849 (à confirmer)",
+      "page": "à vérifier (chapitre Diagnostic / Alarmes) + manuel du module E/S concerné"
+    },
+    "fiabilite": "notice constructeur",
+    "genereIA": true,
+    "verifie": false
+  },
+  {
+    "id": "schneider-atv-ocf",
+    "code": "OCF",
+    "titre": "Surintensité",
+    "marque": "Schneider",
+    "type": "variateur",
+    "gammes": [
+      "ATV320",
+      "ATV930"
+    ],
+    "symptomes": [
+      "surintensité",
+      "arrêt au démarrage",
+      "OCF",
+      "déclenche en accélération"
+    ],
+    "signification": "Le courant de sortie du variateur a dépassé le seuil de surintensité.",
+    "causes": [
+      "Rampe d'accélération ou de décélération trop courte",
+      "Paramètres moteur incorrects",
+      "Inertie ou charge trop élevée",
+      "Blocage mécanique"
+    ],
+    "verifications": [
+      "Contrôler les rampes ACC / dEC",
+      "Comparer les paramètres moteur à la plaque signalétique et refaire l'autoréglage",
+      "Vérifier la mécanique"
+    ],
+    "remede": "Corriger la cause, puis réinitialiser le défaut.",
+    "source": {
+      "document": "Altivar Machine ATV320 - Manuel de programmation ; Altivar Process ATV900 - Manuel de programmation",
+      "reference": "à vérifier",
+      "page": "à vérifier (chapitre Diagnostic et dépannage)"
+    },
+    "fiabilite": "notice constructeur",
+    "genereIA": true,
+    "verifie": false
+  },
+  {
+    "id": "schneider-atv-scf1",
+    "code": "SCF1",
+    "titre": "Court-circuit moteur",
+    "marque": "Schneider",
+    "type": "variateur",
+    "gammes": [
+      "ATV320",
+      "ATV930"
+    ],
+    "symptomes": [
+      "court-circuit",
+      "SCF1",
+      "défaut sortie variateur"
+    ],
+    "signification": "Court-circuit détecté en sortie du variateur (entre phases moteur).",
+    "causes": [
+      "Court-circuit dans le câble ou le moteur",
+      "Isolement moteur dégradé",
+      "Câble moteur endommagé"
+    ],
+    "verifications": [
+      "Couper l'alimentation et attendre la décharge du circuit intermédiaire (temps indiqué sur l'appareil) avant toute intervention sur le circuit de puissance.",
+      "Déconnecter le moteur et mesurer l'isolement des câbles et du moteur",
+      "Si le défaut persiste moteur déconnecté, suspecter le variateur"
+    ],
+    "remede": "Réparer le câble ou le moteur. Réinitialisation après coupure d'alimentation selon le manuel (à vérifier).",
+    "source": {
+      "document": "Altivar Machine ATV320 - Manuel de programmation ; Altivar Process ATV900 - Manuel de programmation",
+      "reference": "à vérifier",
+      "page": "à vérifier (chapitre Diagnostic et dépannage)"
+    },
+    "fiabilite": "notice constructeur",
+    "genereIA": true,
+    "verifie": false
+  },
+  {
+    "id": "schneider-atv-scf3",
+    "code": "SCF3",
+    "titre": "Court-circuit à la terre",
+    "marque": "Schneider",
+    "type": "variateur",
+    "gammes": [
+      "ATV320",
+      "ATV930"
+    ],
+    "symptomes": [
+      "défaut terre",
+      "court-circuit terre",
+      "SCF3",
+      "isolement"
+    ],
+    "signification": "Courant de fuite ou court-circuit à la terre détecté en sortie du variateur.",
+    "causes": [
+      "Défaut d'isolement du moteur ou du câble",
+      "Humidité dans le moteur ou la boîte à bornes",
+      "Câble moteur trop long (courants capacitifs)"
+    ],
+    "verifications": [
+      "Couper l'alimentation et attendre la décharge du circuit intermédiaire (temps indiqué sur l'appareil) avant toute intervention sur le circuit de puissance.",
+      "Mesurer l'isolement phase-terre du câble et du moteur (moteur déconnecté du variateur)",
+      "Contrôler la boîte à bornes du moteur",
+      "Vérifier la longueur de câble par rapport au manuel d'installation"
+    ],
+    "remede": "Réparer l'isolement ; réinitialisation selon le manuel.",
+    "source": {
+      "document": "Altivar Machine ATV320 - Manuel de programmation ; Altivar Process ATV900 - Manuel de programmation",
+      "reference": "à vérifier",
+      "page": "à vérifier (chapitre Diagnostic et dépannage)"
+    },
+    "fiabilite": "notice constructeur",
+    "genereIA": true,
+    "verifie": false
+  },
+  {
+    "id": "schneider-atv-obf",
+    "code": "OBF",
+    "titre": "Surtension bus DC (freinage)",
+    "marque": "Schneider",
+    "type": "variateur",
+    "gammes": [
+      "ATV320",
+      "ATV930"
+    ],
+    "symptomes": [
+      "surtension",
+      "OBF",
+      "défaut en décélération",
+      "freinage"
+    ],
+    "signification": "Surtension du bus continu, généralement due à l'énergie restituée par le moteur en freinage.",
+    "causes": [
+      "Décélération trop rapide ou charge entraînante",
+      "Absence ou défaut de la résistance de freinage",
+      "Adaptation de rampe désactivée",
+      "Tension réseau trop élevée"
+    ],
+    "verifications": [
+      "Contrôler la rampe de décélération dEC",
+      "Contrôler la fonction d'adaptation de rampe de décélération (brA)",
+      "Vérifier la résistance de freinage si présente",
+      "Mesurer la tension réseau"
+    ],
+    "remede": "Allonger la décélération, activer l'adaptation de rampe ou ajouter une résistance de freinage.",
+    "source": {
+      "document": "Altivar Machine ATV320 - Manuel de programmation ; Altivar Process ATV900 - Manuel de programmation",
+      "reference": "à vérifier",
+      "page": "à vérifier (chapitre Diagnostic et dépannage)"
+    },
+    "fiabilite": "notice constructeur",
+    "genereIA": true,
+    "verifie": false
+  },
+  {
+    "id": "schneider-atv-usf",
+    "code": "USF",
+    "titre": "Sous-tension réseau",
+    "marque": "Schneider",
+    "type": "variateur",
+    "gammes": [
+      "ATV320",
+      "ATV930"
+    ],
+    "symptomes": [
+      "sous-tension",
+      "USF",
+      "coupure réseau",
+      "microcoupure"
+    ],
+    "signification": "La tension d'alimentation est inférieure au seuil de sous-tension.",
+    "causes": [
+      "Réseau trop faible ou chute de tension passagère",
+      "Perte d'une phase",
+      "Fusible ou protection amont défaillant"
+    ],
+    "verifications": [
+      "Mesurer la tension réseau",
+      "Contrôler les fusibles et protections amont",
+      "Contrôler le serrage des bornes d'alimentation"
+    ],
+    "remede": "Rétablir une tension réseau correcte. Le défaut se réinitialise lorsque la tension revient dans la plage (à vérifier selon le manuel).",
+    "source": {
+      "document": "Altivar Machine ATV320 - Manuel de programmation ; Altivar Process ATV900 - Manuel de programmation",
+      "reference": "à vérifier",
+      "page": "à vérifier (chapitre Diagnostic et dépannage)"
+    },
+    "fiabilite": "notice constructeur",
+    "genereIA": true,
+    "verifie": false
+  },
+  {
+    "id": "schneider-atv-ohf",
+    "code": "OHF",
+    "titre": "Surchauffe variateur",
+    "marque": "Schneider",
+    "type": "variateur",
+    "gammes": [
+      "ATV320",
+      "ATV930"
+    ],
+    "symptomes": [
+      "surchauffe",
+      "OHF",
+      "variateur chaud",
+      "ventilateur"
+    ],
+    "signification": "La température du variateur est trop élevée.",
+    "causes": [
+      "Ventilateur défectueux ou encrassé",
+      "Température ambiante trop élevée",
+      "Surcharge prolongée",
+      "Ventilation d'armoire insuffisante"
+    ],
+    "verifications": [
+      "Contrôler le ventilateur et la propreté du radiateur",
+      "Mesurer la température dans l'armoire",
+      "Contrôler la charge moteur",
+      "Vérifier les distances de montage"
+    ],
+    "remede": "Rétablir le refroidissement, réduire la charge ; réinitialisation après refroidissement.",
+    "source": {
+      "document": "Altivar Machine ATV320 - Manuel de programmation ; Altivar Process ATV900 - Manuel de programmation",
+      "reference": "à vérifier",
+      "page": "à vérifier (chapitre Diagnostic et dépannage)"
+    },
+    "fiabilite": "notice constructeur",
+    "genereIA": true,
+    "verifie": false
+  },
+  {
+    "id": "schneider-atv-olf",
+    "code": "OLF",
+    "titre": "Surcharge moteur",
+    "marque": "Schneider",
+    "type": "variateur",
+    "gammes": [
+      "ATV320",
+      "ATV930"
+    ],
+    "symptomes": [
+      "surcharge moteur",
+      "OLF",
+      "thermique moteur"
+    ],
+    "signification": "Déclenchement par le modèle thermique du moteur (courant moteur excessif prolongé).",
+    "causes": [
+      "Charge mécanique trop élevée",
+      "Courant thermique moteur (ItH) mal réglé",
+      "Problème mécanique (frottement, frein)",
+      "Cycles trop fréquents"
+    ],
+    "verifications": [
+      "Comparer le courant moteur au courant nominal",
+      "Vérifier le réglage ItH",
+      "Contrôler la mécanique"
+    ],
+    "remede": "Réduire la charge, corriger le réglage ; attendre le refroidissement du moteur avant réinitialisation.",
+    "source": {
+      "document": "Altivar Machine ATV320 - Manuel de programmation ; Altivar Process ATV900 - Manuel de programmation",
+      "reference": "à vérifier",
+      "page": "à vérifier (chapitre Diagnostic et dépannage)"
+    },
+    "fiabilite": "notice constructeur",
+    "genereIA": true,
+    "verifie": false
+  },
+  {
+    "id": "schneider-atv-phf",
+    "code": "PHF",
+    "titre": "Perte de phase réseau",
+    "marque": "Schneider",
+    "type": "variateur",
+    "gammes": [
+      "ATV320",
+      "ATV930"
+    ],
+    "symptomes": [
+      "perte phase réseau",
+      "PHF",
+      "phase manquante",
+      "fusible"
+    ],
+    "signification": "Une phase de l'alimentation réseau est absente (ou fort déséquilibre).",
+    "causes": [
+      "Fusible amont fondu",
+      "Borne desserrée",
+      "Réseau déséquilibré",
+      "Variateur triphasé alimenté en monophasé"
+    ],
+    "verifications": [
+      "Mesurer les tensions entre phases",
+      "Contrôler fusibles et disjoncteur amont",
+      "Contrôler le paramétrage de la détection de perte de phase réseau (IPL)"
+    ],
+    "remede": "Rétablir les trois phases.",
+    "source": {
+      "document": "Altivar Machine ATV320 - Manuel de programmation ; Altivar Process ATV900 - Manuel de programmation",
+      "reference": "à vérifier",
+      "page": "à vérifier (chapitre Diagnostic et dépannage)"
+    },
+    "fiabilite": "notice constructeur",
+    "genereIA": true,
+    "verifie": false
+  },
+  {
+    "id": "schneider-atv-opf1",
+    "code": "OPF1",
+    "titre": "Perte d'une phase moteur",
+    "marque": "Schneider",
+    "type": "variateur",
+    "gammes": [
+      "ATV320",
+      "ATV930"
+    ],
+    "symptomes": [
+      "perte phase moteur",
+      "OPF1",
+      "moteur ronronne",
+      "contacteur aval"
+    ],
+    "signification": "Une phase en sortie du variateur (côté moteur) est absente.",
+    "causes": [
+      "Câble moteur coupé ou borne desserrée",
+      "Contacteur aval ouvert ou défaillant",
+      "Enroulement moteur coupé"
+    ],
+    "verifications": [
+      "Couper l'alimentation et attendre la décharge du circuit intermédiaire (temps indiqué sur l'appareil) avant toute intervention sur le circuit de puissance.",
+      "Contrôler le câblage et les bornes moteur",
+      "Mesurer la résistance des enroulements",
+      "Contrôler le contacteur aval et le paramétrage de la détection de perte de phase moteur (OPL)"
+    ],
+    "remede": "Réparer le câblage ou le moteur.",
+    "source": {
+      "document": "Altivar Machine ATV320 - Manuel de programmation ; Altivar Process ATV900 - Manuel de programmation",
+      "reference": "à vérifier",
+      "page": "à vérifier (chapitre Diagnostic et dépannage)"
+    },
+    "fiabilite": "notice constructeur",
+    "genereIA": true,
+    "verifie": false
+  },
+  {
+    "id": "schneider-atv-opf2",
+    "code": "OPF2",
+    "titre": "Perte des trois phases moteur",
+    "marque": "Schneider",
+    "type": "variateur",
+    "gammes": [
+      "ATV320",
+      "ATV930"
+    ],
+    "symptomes": [
+      "perte phases moteur",
+      "OPF2",
+      "moteur non raccordé",
+      "contacteur aval ouvert"
+    ],
+    "signification": "Les trois phases en sortie du variateur sont absentes (moteur non raccordé ou trop petit par rapport au variateur).",
+    "causes": [
+      "Moteur non raccordé ou contacteur aval ouvert",
+      "Moteur de puissance très inférieure au calibre du variateur",
+      "Instabilité du courant moteur"
+    ],
+    "verifications": [
+      "Contrôler le contacteur aval et sa séquence de commande",
+      "Contrôler le câblage moteur",
+      "Comparer la puissance du moteur au calibre du variateur",
+      "Contrôler le paramétrage OPL"
+    ],
+    "remede": "Raccorder le moteur ou corriger la séquence du contacteur aval / le paramétrage.",
+    "source": {
+      "document": "Altivar Machine ATV320 - Manuel de programmation ; Altivar Process ATV900 - Manuel de programmation",
+      "reference": "à vérifier",
+      "page": "à vérifier (chapitre Diagnostic et dépannage)"
+    },
+    "fiabilite": "notice constructeur",
+    "genereIA": true,
+    "verifie": false
+  },
+  {
+    "id": "schneider-atv-slf1",
+    "code": "SLF1",
+    "titre": "Communication Modbus",
+    "marque": "Schneider",
+    "type": "variateur",
+    "gammes": [
+      "ATV320",
+      "ATV930"
+    ],
+    "symptomes": [
+      "perte communication",
+      "Modbus",
+      "SLF1",
+      "liaison série"
+    ],
+    "signification": "Interruption de la communication sur la liaison Modbus intégrée.",
+    "causes": [
+      "Câble ou connecteur RJ45 défectueux",
+      "Maître Modbus arrêté",
+      "Temporisation Modbus (ttO) trop courte",
+      "Erreur de paramétrage (adresse, vitesse, format)"
+    ],
+    "verifications": [
+      "Contrôler le câble et le connecteur",
+      "Vérifier que le maître communique",
+      "Contrôler l'adresse, la vitesse et le format",
+      "Contrôler la temporisation ttO"
+    ],
+    "remede": "Rétablir la communication, puis réinitialiser.",
+    "source": {
+      "document": "Altivar Machine ATV320 - Manuel de programmation ; Altivar Process ATV900 - Manuel de programmation",
+      "reference": "à vérifier",
+      "page": "à vérifier (chapitre Diagnostic et dépannage)"
+    },
+    "fiabilite": "notice constructeur",
+    "genereIA": true,
+    "verifie": false
+  },
+  {
+    "id": "schneider-atv-cnf",
+    "code": "CNF",
+    "titre": "Communication réseau (carte de communication)",
+    "marque": "Schneider",
+    "type": "variateur",
+    "gammes": [
+      "ATV320",
+      "ATV930"
+    ],
+    "symptomes": [
+      "perte communication",
+      "CNF",
+      "carte réseau",
+      "Profinet",
+      "EtherNet/IP",
+      "CANopen"
+    ],
+    "signification": "Défaut de communication sur la carte de communication optionnelle (bus de terrain).",
+    "causes": [
+      "Câble réseau coupé ou débranché",
+      "Maître réseau arrêté ou en défaut",
+      "Configuration réseau incorrecte"
+    ],
+    "verifications": [
+      "Contrôler le câble et les connecteurs réseau",
+      "Vérifier l'état du maître (automate)",
+      "Contrôler la configuration de la carte (adresse, nom d'appareil)",
+      "Consulter le manuel de la carte de communication concernée"
+    ],
+    "remede": "Rétablir la communication réseau, puis réinitialiser.",
+    "source": {
+      "document": "Altivar Machine ATV320 - Manuel de programmation ; Altivar Process ATV900 - Manuel de programmation",
+      "reference": "à vérifier",
+      "page": "à vérifier (chapitre Diagnostic et dépannage)"
+    },
+    "fiabilite": "notice constructeur",
+    "genereIA": true,
+    "verifie": false
+  },
+  {
+    "id": "schneider-atv-epf1",
+    "code": "EPF1",
+    "titre": "Défaut externe",
+    "marque": "Schneider",
+    "type": "variateur",
+    "gammes": [
+      "ATV320",
+      "ATV930"
+    ],
+    "symptomes": [
+      "défaut externe",
+      "EPF1",
+      "entrée défaut",
+      "arrêt sur entrée"
+    ],
+    "signification": "Défaut externe déclenché par une entrée logique ou un bit de communication, selon le paramétrage.",
+    "causes": [
+      "Activation volontaire par un équipement externe",
+      "Câblage de l'entrée affectée",
+      "Bit de commande envoyé par l'automate"
+    ],
+    "verifications": [
+      "Identifier l'entrée ou le bit affecté au défaut externe dans le menu de gestion des défauts",
+      "Contrôler l'état de l'entrée",
+      "Remonter à l'équipement externe"
+    ],
+    "remede": "Supprimer la cause externe, puis réinitialiser.",
+    "source": {
+      "document": "Altivar Machine ATV320 - Manuel de programmation ; Altivar Process ATV900 - Manuel de programmation",
+      "reference": "à vérifier",
+      "page": "à vérifier (chapitre Diagnostic et dépannage)"
+    },
+    "fiabilite": "notice constructeur",
+    "genereIA": true,
+    "verifie": false
+  },
+  {
+    "id": "schneider-atv-lff3",
+    "code": "LFF3",
+    "titre": "Perte 4-20 mA sur AI3",
+    "marque": "Schneider",
+    "type": "variateur",
+    "gammes": [
+      "ATV320"
+    ],
+    "symptomes": [
+      "perte signal analogique",
+      "4-20mA",
+      "LFF3",
+      "capteur",
+      "AI3"
+    ],
+    "signification": "Perte du signal 4-20 mA sur l'entrée analogique AI3 (courant inférieur au seuil de détection).",
+    "causes": [
+      "Câble du capteur coupé",
+      "Capteur défectueux ou non alimenté",
+      "Entrée paramétrée en 4-20 mA alors que le signal est en 0-20 mA ou en tension"
+    ],
+    "verifications": [
+      "Mesurer le courant sur AI3",
+      "Contrôler le câblage et l'alimentation du capteur",
+      "Contrôler la configuration de AI3"
+    ],
+    "remede": "Rétablir le signal ou corriger la configuration de l'entrée.",
+    "source": {
+      "document": "Altivar Machine ATV320 - Manuel de programmation",
+      "reference": "à vérifier",
+      "page": "à vérifier (chapitre Diagnostic et dépannage)"
+    },
+    "fiabilite": "notice constructeur",
+    "genereIA": true,
+    "verifie": false
+  },
+  {
+    "id": "schneider-m340-m580-led-run",
+    "code": "Voyant RUN",
+    "titre": "Voyant RUN de la CPU (clignotant ou éteint)",
+    "marque": "Schneider",
+    "type": "automate",
+    "gammes": [
+      "M340",
+      "M580"
+    ],
+    "symptomes": [
+      "RUN clignote",
+      "automate en STOP",
+      "RUN éteint",
+      "CPU"
+    ],
+    "signification": "Voyant vert RUN : allumé fixe = application en RUN ; clignotant = CPU en STOP ; éteint = pas d'application ou défaut (signification exacte à confirmer dans le tableau des voyants du manuel de la gamme).",
+    "causes": [
+      "CPU passée en STOP (commande opérateur ou programme)",
+      "Pas d'application valide chargée",
+      "Défaut bloquant du processeur"
+    ],
+    "verifications": [
+      "Relever l'état combiné des voyants RUN, ERR, I/O",
+      "Se connecter avec Control Expert (ex-Unity Pro) et lire l'état de la CPU et les bits/mots système de diagnostic",
+      "Vérifier la carte mémoire"
+    ],
+    "remede": "Selon le diagnostic : passer en RUN, recharger l'application ou traiter le défaut bloquant.",
+    "source": {
+      "document": "Modicon M340 - Processeurs, racks et modules d'alimentation - Manuel de mise en oeuvre ; Modicon M580 - Matériel - Manuel de référence",
+      "reference": "35012676 (M340, à confirmer) ; EIO0000001578 (M580, à confirmer)",
+      "page": "à vérifier (chapitre Voyants / Diagnostic de la CPU)"
+    },
+    "fiabilite": "notice constructeur",
+    "genereIA": true,
+    "verifie": false
+  },
+  {
+    "id": "schneider-m340-m580-led-err",
+    "code": "Voyant ERR",
+    "titre": "Voyant ERR de la CPU (fixe ou clignotant)",
+    "marque": "Schneider",
+    "type": "automate",
+    "gammes": [
+      "M340",
+      "M580"
+    ],
+    "symptomes": [
+      "ERR rouge",
+      "ERR clignote",
+      "défaut CPU",
+      "défaut processeur"
+    ],
+    "signification": "Voyant rouge ERR : signale un défaut du processeur ou du système ; clignotant, il signale notamment l'absence d'application configurée ou un défaut bloquant (combinaisons exactes à confirmer dans le manuel de la gamme).",
+    "causes": [
+      "Défaut bloquant de l'application (erreur d'exécution)",
+      "Application absente ou non valide",
+      "Carte mémoire absente, défectueuse ou incompatible",
+      "Défaut matériel du processeur"
+    ],
+    "verifications": [
+      "Relever la combinaison RUN / ERR / I/O",
+      "Se connecter avec Control Expert et lire le diagnostic de la CPU",
+      "Contrôler la carte mémoire",
+      "Consulter le tableau des voyants du manuel"
+    ],
+    "remede": "Traiter la cause indiquée par le diagnostic ; remplacer la CPU uniquement si le défaut matériel est confirmé.",
+    "source": {
+      "document": "Modicon M340 - Processeurs, racks et modules d'alimentation - Manuel de mise en oeuvre ; Modicon M580 - Matériel - Manuel de référence",
+      "reference": "35012676 (M340, à confirmer) ; EIO0000001578 (M580, à confirmer)",
+      "page": "à vérifier (chapitre Voyants / Diagnostic de la CPU)"
+    },
+    "fiabilite": "notice constructeur",
+    "genereIA": true,
+    "verifie": false
+  },
+  {
+    "id": "schneider-m340-m580-led-io",
+    "code": "Voyant I/O",
+    "titre": "Voyant I/O de la CPU allumé",
+    "marque": "Schneider",
+    "type": "automate",
+    "gammes": [
+      "M340",
+      "M580"
+    ],
+    "symptomes": [
+      "I/O rouge",
+      "défaut entrées sorties",
+      "module en défaut",
+      "voie en défaut"
+    ],
+    "signification": "Voyant rouge I/O : un défaut d'entrées/sorties est présent (module, voie ou configuration).",
+    "causes": [
+      "Module d'E/S absent, mal enfiché ou différent de la configuration",
+      "Défaut sur une voie (alimentation capteurs, rupture de fil selon module)",
+      "Alimentation 24 V des E/S absente",
+      "Défaut sur une station déportée (M580)"
+    ],
+    "verifications": [
+      "Relever le voyant I/O des modules du rack pour localiser le module",
+      "Lire le diagnostic dans l'écran de diagnostic Control Expert",
+      "Contrôler l'alimentation des E/S",
+      "Vérifier l'enfichage et la référence des modules"
+    ],
+    "remede": "Corriger le défaut d'E/S identifié.",
+    "source": {
+      "document": "Modicon M340 - Processeurs, racks et modules d'alimentation - Manuel de mise en oeuvre ; Modicon M580 - Matériel - Manuel de référence",
+      "reference": "35012676 (M340, à confirmer) ; EIO0000001578 (M580, à confirmer)",
+      "page": "à vérifier (chapitre Voyants / Diagnostic de la CPU)"
+    },
+    "fiabilite": "notice constructeur",
+    "genereIA": true,
+    "verifie": false
+  }
+]

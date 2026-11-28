@@ -110,7 +110,7 @@ function renderFiche(id) {
         ? h('p', { class: 'warn' }, '⚠ Contenu rédigé par IA, pas encore vérifié contre la notice. Contrôler la source avant de s’y fier.')
         : null,
       section('Signification', h('p', {}, f.signification)),
-      section('Causes probables (de la plus fréquente à la plus rare)', h('ol', {}, f.causes.map((c) => h('li', {}, c)))),
+      section('Causes probables (fréquentes → rares)', h('ol', {}, f.causes.map((c) => h('li', {}, c)))),
       section('Vérifications pas à pas', h('ol', {}, f.verifications.map((c) => h('li', {}, c)))),
       section('Remède', h('p', {}, f.remede)),
       section('Source',
