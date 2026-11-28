@@ -1,0 +1,9 @@
+{
+  "name": "aide-memoire-defauts",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "start": "npx --yes serve -l 3000 ."
+  }
+}

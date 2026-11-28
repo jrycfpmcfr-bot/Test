@@ -1,0 +1,6 @@
+node_modules/
+.vercel/
+.env*
+# Exports personnels (notes terrain, sites) : ne jamais versionner
+exports/
+*.export.json
